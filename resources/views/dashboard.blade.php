@@ -35,6 +35,17 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box shadow-sm">
+                <span class="info-box-icon bg-warning"><i class="fas fa-tags"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">proveedor</span>
+                    <span class="info-box-number">{{ $totales['proveedores'] }}</span>
+                </div>
+            </div>
+        </div>
+
         <div class="col-md-3 col-sm-6 col-12">
             <div class="info-box shadow-sm">
                 <span class="info-box-icon bg-info"><i class="fas fa-cash-register"></i></span>

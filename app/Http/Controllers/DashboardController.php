@@ -6,6 +6,7 @@ use App\Models\Categoria;
 use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\Venta;
+use App\Models\Proveedores;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -26,8 +27,10 @@ class DashboardController extends Controller
         $totales = [
             'sales' => Venta::count(),
             'products' => Producto::count(),
+            'proveedores' => Proveedores::count(),
             'clients' => Cliente::count(),
             'categories' => Categoria::count()
+
         ];
         $nombresMeses = [
             1 => 'Enero',

@@ -10,7 +10,6 @@ class UsuarioController extends Controller
 {
     // Roles permitidos
     protected $roles = [
-        'Super-Admin' => 'Super-Admin',
         'Admin'       => 'Admin',
         'User'        => 'User',
     ];
@@ -56,7 +55,7 @@ class UsuarioController extends Controller
             'name'     => ['required', 'regex:/^[\pL\s]+$/u', 'max:255'],
             'email'    => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6'],
-            'rol'      => ['required', 'in:Super-Admin,Admin,User'],
+            'rol'      => ['required', 'in:,Admin,User'],
         ]);
 
         $data['password'] = Hash::make($data['password']);

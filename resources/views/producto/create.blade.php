@@ -9,9 +9,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-
             @includeif('partials.errors')
-
             <div class="card card-default">
                 <div class="card-header">
                     <span class="card-title">{{ __('Create') }} Producto</span>
@@ -19,9 +17,7 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('productos.store') }}" role="form" enctype="multipart/form-data" autocomplete="off">
                         @csrf
-
                         @include('producto.form')
-
                     </form>
                 </div>
             </div>
@@ -34,7 +30,5 @@
 @stop
 
 @section('js')
-    <script>
-        console.log('Hi!');
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 @stop

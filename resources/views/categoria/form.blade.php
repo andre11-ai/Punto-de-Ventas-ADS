@@ -10,6 +10,18 @@
             @enderror
         </div>
     </div>
+    <div class="form-group">
+    <label for="proveedor_id">Proveedor</label>
+    <select name="proveedor_id" class="form-control">
+        <option value="">-- Seleccionar proveedor --</option>
+        @foreach($proveedores as $proveedor)
+            <option value="{{ $proveedor->id }}"
+                {{ (old('proveedor_id', $categoria->proveedor_id ?? '') == $proveedor->id) ? 'selected' : '' }}>
+                {{ $proveedor->nombre }} - {{ $proveedor->upc }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
     <div class="box-footer mt20 text-right">
         {!! html()->a('/categorias', __('Cancel'))->class('btn btn-danger') !!}

@@ -10,6 +10,10 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\ProveedoresController;
+use App\Http\Controllers\PromocionController;
+
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AuthenticatedSessionController::class, 'create'])
@@ -26,18 +30,32 @@ Route::middleware('auth')->group(function () {
     Route::resource('productos', ProductoController::class);
     Route::resource('clientes', ClienteController::class);
     Route::resource('categorias', CategoriaController::class);
+    Route::resource('proveedores', ProveedoresController::class);
+
     Route::resource('usuarios', UsuarioController::class);
+
+    Route::put('/proveedores/{id}', [ProveedoresController::class, 'update'])->name('proveedores.update');
+Route::get('/api/categoria-info/{id}', [CategoriaController::class, 'getCategoriaInfo'])
+     ->name('api.categoria.info');
+     Route::get('/proveedores-por-categoria/{id}', [CategoriaController::class, 'proveedoresPorCategoria']);
 
     Route::get('/listarProductos', [DatatableController::class, 'products'])->name('products.list');
     Route::get('/listarClientes', [DatatableController::class, 'clients'])->name('clients.list');
     Route::get('/listarUsuarios', [DatatableController::class, 'users'])->name('users.list');
     Route::get('/listarCategorias', [DatatableController::class, 'categories'])->name('categories.list');
     Route::get('/listarVentas', [DatatableController::class, 'sales'])->name('sales.list');
-    Route::get('usuarios/list', [UsuarioController::class, 'list'])
-        ->name('usuarios.list');
+    Route::get('usuarios/list', [UsuarioController::class, 'list'])->name('usuarios.list');
     Route::get('/compania', [CompaniaController::class, 'index'])->name('compania.index');
     Route::put('/compania/{compania}', [CompaniaController::class, 'update'])->name('compania.update');
+    Route::get('/categories/list', [CategoriaController::class, 'list'])->name('categories.list');
+    Route::get('/productos/list', [ProductoController::class, 'list'])->name('products.list');
+Route::get('/products/list', [ProductoController::class, 'list'])->name('products.list');
+Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
+Route::post('/promociones/guardar', [PromocionController::class, 'guardar'])->name('promociones.guardar');
 
+
+
+    Route::get('/proveedores/list', [ProveedoresController::class, 'list'])->name('proveedores.list');
     Route::get('/venta', [VentaController::class, 'index'])->name('venta.index');
     Route::get('/venta/show', [VentaController::class, 'show'])->name('venta.show');
     Route::get('/venta/cliente', [VentaController::class, 'cliente'])->name('venta.cliente');

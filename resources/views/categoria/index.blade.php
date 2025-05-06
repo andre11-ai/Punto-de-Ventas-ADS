@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content_header')
-    <h1>Categorias</h1>
+    <h1>Categorías</h1>
 @stop
 
 @section('content')
@@ -12,9 +12,8 @@
             <div class="card">
                 <div class="card-header">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-
                         <span id="card_title">
-                            {{ __('Categoria') }}
+                            {{ __('Categorías') }}
                         </span>
 
                         <div class="float-right">
@@ -25,23 +24,51 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="card-body">
                     @if ($message = Session::get('success'))
-                        <div class="alert fade_success .fade">
-                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">&times;</button>
+                        <div class="alert alert-success alert-dismissible fade show">
                             <strong>{{ $message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
+
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover display responsive nowrap" width="100%"
-                            id="tblCategories">
+                        <table class="table table-striped table-hover display responsive nowrap" width="100%" id="tblcategorias">
                             <thead class="thead">
                                 <tr>
                                     <th>Id</th>
                                     <th>Nombre</th>
-                                    <th></th>
+                                    <th>Proveedor</th>
+                                    <th>UPC</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                @forelse ($categorias as $categoria)
+                                    <tr>
+                                        <td>{{ $categoria->id }}</td>
+                                        <td>{{ $categoria->nombre }}</td>
+                                        <td>{{ $categoria->proveedor->nombre ?? '-' }}</td>
+                                        <td>{{ $categoria->proveedor->upc ?? '-' }}</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-primary" href="{{ route('categorias.edit', $categoria->id) }}">Editar</a>
+
+                                            <form id="delete-form-{{ $categoria->id }}" action="{{ route('categorias.destroy', $categoria->id) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm btn-delete" data-id="{{ $categoria->id }}">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5">No hay categorías registradas.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -52,83 +79,55 @@
 
 @section('css')
     <link href="DataTables/datatables.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 @endsection
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="DataTables/datatables.min.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            new DataTable('#tblCategories', {
+        document.addEventListener("DOMContentLoaded", function () {
+            let table = new DataTable('#tblcategorias', {
                 responsive: true,
                 fixedHeader: true,
-                ajax: {
-                    url: '{{ route('categories.list') }}',
-                    dataSrc: 'data'
-                },
-                columns: [{
-                        data: 'id'
-                    },
-                    {
-                        data: 'nombre'
-                    },
-                    {
-                        // Agregar columna para acciones
-                        data: null,
-                        render: function(data, type, row) {
-                            // Agregar botones de editar y eliminar
-                            return '<a class="btn btn-sm btn-primary" href="/categorias/' +
-                                row.id + '/edit">Editar</a>' +
-                                '<button class="btn btn-sm btn-danger" onclick="deleteCategory(' +
-                                row.id + ')">Eliminar</button>';
-                        }
-                    }
-                ],
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json',
                 },
-                order: [
-                    [0, 'desc']
-                ]
+                order: [[0, 'desc']]
+            });
+
+            $(document).on('click', '.btn-delete', function (e) {
+                e.preventDefault();
+                let categoriaId = $(this).data('id');
+
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Eliminar',
+                    text: '¿Estás seguro de que quieres eliminar esta categoría?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/categorias/${categoriaId}`,
+                            type: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            success: function () {
+                                Swal.fire('¡Eliminado!', 'La categoría ha sido eliminada.', 'success');
+                                $('#tblcategorias').DataTable().row($(`button[data-id="${categoriaId}"]`).parents('tr')).remove().draw();
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'No se pudo eliminar la categoría.', 'error');
+                            }
+                        });
+                    }
+                });
             });
         });
-
-        // Función para eliminar un categoria
-        function deleteCategory(clientId) {
-            Swal.fire({
-                title: "Eliminar",
-                text: "¿Estás seguro de que quieres eliminar este categoria?",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch('/categorias/' + clientId, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            },
-                            // body: Puedes incluir un cuerpo si necesitas enviar datos adicionales al servidor
-                        })
-                        .then(response => {
-                            return response.text();
-                        })
-                        .then(data => {
-                            // Actualizar la tabla, si es necesario
-                            $('#tblCategories').DataTable().ajax.reload();
-                        })
-                        .catch(error => {
-                            // Manejar errores
-                            console.error('Error al eliminar el categoria:', error);
-                        });
-
-
-                }
-            });
-        }
     </script>
-@stop
+@endsection

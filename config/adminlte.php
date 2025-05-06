@@ -296,7 +296,7 @@ return [
         ],
 
         // Sidebar items:
-        
+
         [
             'text' => 'blog',
             'url'  => 'admin/blog',
@@ -332,6 +332,10 @@ return [
             'url'         => '#',
             'icon'        => 'fas fa-fw fa-list',
             'submenu' => [
+                         [
+                    'text' => 'Proveedores',
+                    'url'  => 'proveedores',
+                ],
                 [
                     'text' => 'Categorias',
                     'url'  => 'categorias',
@@ -340,6 +344,7 @@ return [
                     'text' => 'Productos',
                     'url'  => 'productos',
                 ],
+
             ],
         ],
         [
@@ -354,6 +359,7 @@ return [
                 [
                     'text' => 'Listar ventas',
                     'url'  => '/venta/show',
+                    'icon' => 'fas fa-truck',
                 ],
             ],
         ]
