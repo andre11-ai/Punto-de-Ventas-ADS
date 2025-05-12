@@ -22,6 +22,8 @@ public function up(): void
         $table->unsignedBigInteger('id_categoria');
         $table->string('codigo_barras', 13)->unique(); // 12 dígitos exactos
         $table->unsignedBigInteger('id_proveedor')->nullable();
+        $table->unsignedBigInteger('promocion_id')->nullable();
+        $table->foreign('promocion_id')->references('id')->on('promociones')->onDelete('set null');
         $table->foreign('id_proveedor')->references('id')->on('proveedores');
         $table->timestamps();
 
@@ -34,6 +36,9 @@ public function up(): void
      */
     public function down(): void
     {
-        Schema::dropIfExists('productos');
+                Schema::table('productos', function (Blueprint $table) {
+            $table->dropColumn('promocion'); // Elimina la columna promocion
+        });
+
     }
 };

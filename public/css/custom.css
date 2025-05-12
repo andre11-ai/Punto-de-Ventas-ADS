@@ -124,3 +124,24 @@ button.close {
     bottom: 30px;
     right: 30px;
 }
+
+/* Estilos para el modal de edición mejorado */
+#editarPromocionModal .card-header {
+    font-weight: 600;
+}
+
+#editarPromocionModal .list-group-item {
+    padding: 0.75rem 1.25rem;
+    border-left: none;
+    border-right: none;
+}
+
+#editarPromocionModal .list-group-item:first-child {
+    border-top: none;
+}
+
+#editarPromocionModal .modal-body {
+    padding: 20px;
+}
+
+

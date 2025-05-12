@@ -22,9 +22,14 @@ class ProductoController extends Controller
 public function index()
 {
     $productos = Producto::all();
-    return view('producto.index', compact('productos'));
-}
+    $categorias = Categoria::all();
+    $proveedores = Proveedores::all();
+    $productosConPromocion = Producto::whereNotNull('promocion_id')
+                                ->with(['categoria', 'proveedor', 'promocion'])
+                                ->get();
 
+    return view('producto.index', compact('productos', 'categorias', 'proveedores', 'productosConPromocion'));
+}
 
     /**
      * Show the form for creating a new resource.
@@ -63,7 +68,8 @@ public function store(Request $request)
         'id_categoria' => 'required|exists:categorias,id',
         'id_proveedor' => 'required|exists:proveedores,id',
         'codigo_barras' => 'required|string|size:13|unique:productos,codigo_barras',
-        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'promocion' => 'nullable|string'
     ]);
 
     // Crear producto (ya no necesitamos generar EAN-13)
@@ -127,12 +133,17 @@ public function store(Request $request)
         'id_categoria' => 'required|exists:categorias,id',
         'id_proveedor' => 'required|exists:proveedores,id',
         'codigo_barras' => 'required|string|size:13|unique:productos,codigo_barras,'.$producto->id,
-        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'promocion' => 'nullable|string'
     ]);
 
     // Actualizar campos
     $producto->update($validated);
 
+        if ($request->has('promocion')) {
+        $producto->promocion = $request->promocion;
+        $producto->save();
+    }
     // Manejo de imagen
     if ($request->hasFile('foto')) {
         // Eliminar imagen anterior si existe
@@ -163,7 +174,7 @@ public function destroy($id)
 
 public function list()
 {
-    $productos = Producto::with(['categoria', 'proveedor'])->get();
+    $productos = Producto::with(['categoria', 'proveedor', 'promocion'])->get();
 
     $data = $productos->map(function ($producto) {
         return [
@@ -176,6 +187,8 @@ public function list()
             'proveedor' => $producto->proveedor ? ['nombre' => $producto->proveedor->nombre] : null,
             'foto' => $producto->foto,
             'codigo_barras' => $producto->codigo_barras,
+            'promocion' => $producto->promocion ? ['tipo' => $producto->promocion->tipo] : null,
+
         ];
     });
 
@@ -219,5 +232,95 @@ private function generateEAN13($upc)
     // Asegurarse que el código tenga 13 dígitos
     return str_pad($upc, 13, '0', STR_PAD_LEFT);
 }
+
+
+public function promocion()
+{
+    return $this->hasOne(Promocion::class);
+}
+
+public function editPromocion($id)
+{
+    $producto = Producto::with(['promocion', 'categoria', 'proveedor'])->findOrFail($id);
+
+    $productosRelacionados = [];
+
+    if ($producto->promocion) {
+        $productosRelacionados = Producto::where('promocion_id', $producto->promocion_id)
+            ->with(['categoria', 'proveedor'])
+            ->where('id', '!=', $producto->id)
+            ->get();
+    }
+
+    // ✅ Aquí se agregan los IDs de productos con esta promoción
+    $productosConEstaPromocion = Producto::where('promocion_id', $producto->promocion_id)
+        ->pluck('id')
+        ->toArray();
+
+    return view('producto.edit-promocion', compact(
+        'producto',
+        'productosRelacionados',
+        'productosConEstaPromocion' // 👈 ¡Importante!
+    ));
+}
+
+
+
+public function updatePromocion(Request $request, $id)
+{
+    $request->validate([
+        'tipo_promocion' => 'required|string|max:50|not_in:ninguna',
+        'productos' => 'nullable|array',
+        'productos.*' => 'exists:productos,id'
+    ]);
+
+    $producto = Producto::with('promocion')->findOrFail($id);
+
+    // Crear promoción si no existe
+    if (!$producto->promocion) {
+        $promocion = Promocion::create([
+            'tipo' => $request->tipo_promocion,
+            'id_categoria' => $producto->id_categoria,
+            'id_proveedor' => $producto->id_proveedor
+        ]);
+        $producto->update(['promocion_id' => $promocion->id]);
+    } else {
+        // Solo actualiza el tipo
+        $producto->promocion->update(['tipo' => $request->tipo_promocion]);
+    }
+
+    $promocionId = $producto->promocion_id;
+
+    // Obtener productos originalmente asociados a esta promoción
+    $originales = Producto::where('promocion_id', $promocionId)->pluck('id')->toArray();
+
+    $seleccionados = $request->input('productos', []);
+
+    // Quitar la promoción solo a los productos originalmente marcados que ahora fueron desmarcados
+    $desmarcados = array_diff($originales, $seleccionados);
+    Producto::whereIn('id', $desmarcados)->update(['promocion_id' => null]);
+
+    // Asignar promoción a los nuevos seleccionados (incluye confirmación de duplicados)
+    Producto::whereIn('id', $seleccionados)->update(['promocion_id' => $promocionId]);
+
+    // Verificar si la promoción quedó vacía
+    $total = Producto::where('promocion_id', $promocionId)->count();
+    if ($total === 0) {
+        Promocion::find($promocionId)?->delete();
+    }
+
+    return redirect()->back()->with('success', 'Promoción actualizada correctamente');
+}
+
+
+
+public function removePromocion($id)
+{
+    $producto = Producto::findOrFail($id);
+    $producto->update(['promocion_id' => null]);
+
+    return response()->json(['success' => true]);
+}
+
 }
 

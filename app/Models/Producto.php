@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
@@ -14,7 +15,8 @@ protected $fillable = [
     'id_categoria',
     'id_proveedor',
     'codigo_barras',
-    'foto'
+    'foto',
+    'promocion_id'
 ];
 
     public function proveedor()
@@ -26,4 +28,10 @@ protected $fillable = [
     {
         return $this->belongsTo(Categoria::class, 'id_categoria');
     }
+
+    public function promocion()
+    {
+        return $this->belongsTo(Promocion::class, 'promocion_id');
+    }
+
 }
