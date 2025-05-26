@@ -11,13 +11,11 @@ class ProveedoresSeeder extends Seeder
 {
   public function run()
 {
-    // Primero el proveedor "None"
     Proveedores::create([
         'nombre' => 'None',
         'upc' => '0000000000',
     ]);
 
-    // Lista de proveedores reales
     $proveedoresReales = [
         'Mascar', 'P&G', 'Unilever', 'Nestlé', 'Coca-Cola',
         'PepsiCo', 'Kellogg\'s', 'Colgate-Palmolive', 'Johnson & Johnson',

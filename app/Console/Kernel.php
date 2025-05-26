@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+    $schedule->command('promociones:limpiar')
+        ->daily() // Se ejecuta a medianoche
+        ->timezone('America/Mexico_City') // Ajusta según tu zona horaria
+        ->appendOutputTo(storage_path('logs/promociones.log')); // Opcional: registrar salida       
     }
 
     /**
@@ -24,4 +27,6 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
+
 }

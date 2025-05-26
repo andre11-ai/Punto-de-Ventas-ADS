@@ -10,33 +10,32 @@ use Illuminate\Database\Eloquent\Model;
 class Categoria extends Model
 {
 
-  static $rules = [
-    'nombre' => 'required'
-  ];
+    protected $table = 'categorias';
 
-  protected $table = 'categorias';
+    static $rules = [
+        'nombre' => 'required'
+    ];
 
-  protected $fillable = [
-    'nombre',
-    'upc',
-    'proveedor_id',
-];
+    protected $fillable = [
+        'nombre',
+        'upc',
+        'proveedor_id', 
+    ];
 
+    public function productos()
+    {
+        return $this->hasMany(Producto::class, 'id_categoria');
+    }
 
-  public function productos()
-  {
-    return $this->hasMany(Producto::class);
-  }
+    public function proveedor()
+    {
+        return $this->belongsTo(Proveedores::class, 'proveedor_id'); // Relación explícita
+    }
 
-public function proveedor()
-{
-    return $this->belongsTo(Proveedores::class, 'proveedor_id');
-}
-public function getFullNameAttribute()
-{
-    return $this->nombre;
-}
-
+    public function getFullNameAttribute()
+    {
+        return $this->nombre . ($this->upc ? " [UPC: {$this->upc}]" : '');
+    }
 
 }
 

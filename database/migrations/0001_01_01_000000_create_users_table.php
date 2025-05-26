@@ -12,20 +12,18 @@ return new class extends Migration
      */
     public function up()
     {
-        // Creamos la tabla users
         Schema::create('users', function (Blueprint $table) {
-            $table->id();                                // AUTO_INCREMENT
-            $table->string('name');                      // Nombre
-            $table->string('email')->unique();           // Correo único
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');                  // Contraseña
+            $table->string('password');
             $table->enum('rol', ['Super-Admin','Admin','User'])
-                  ->default('User');                     // Valor por defecto
+                  ->default('User');
             $table->rememberToken();
             $table->timestamps();
         });
 
-        // Forzar el AUTO_INCREMENT inicial a 11101
         DB::statement('ALTER TABLE users AUTO_INCREMENT = 1110001;');
     }
 

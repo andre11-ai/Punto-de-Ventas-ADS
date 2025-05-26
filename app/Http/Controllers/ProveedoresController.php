@@ -15,21 +15,21 @@ class ProveedoresController extends Controller
         return view('proveedor.index', compact('proveedores'));
     }
 
-public function list()
-{
-    $proveedores = Proveedores::all();
+    public function list()
+    {
+        $proveedores = Proveedores::all();
 
-    return response()->json([
-        'data' => $proveedores->map(function ($prov) {
-            return [
-                'id' => $prov->id,
-                'nombre' => $prov->nombre,
-                'upc' => $prov->upc,
-                'acciones' => view('proveedor.partials.acciones', compact('prov'))->render()
-            ];
-        })
-    ]);
-}
+        return response()->json([
+            'data' => $proveedores->map(function ($prov) {
+                return [
+                    'id' => $prov->id,
+                    'nombre' => $prov->nombre,
+                    'upc' => $prov->upc,
+                    'acciones' => view('proveedor.partials.acciones', compact('prov'))->render()
+                ];
+            })
+        ]);
+    }
 
 
     public function create()
@@ -63,36 +63,36 @@ public function list()
         return view('proveedor.edit', compact('proveedor'));
     }
 
-public function update(Request $request, $id)
-{
-    $request->validate([
-        'nombre' => 'required',
-        'upc' => 'required'
-    ]);
-
-    $proveedor = Proveedores::findOrFail($id);
-    $proveedor->update([
-        'nombre' => $request->nombre,
-        'upc' => $request->upc
-    ]);
-
-    return redirect()->route('proveedores.index')->with('success', 'Proveedor actualizado correctamente.');
-}
- public function destroy($id)
-{
-    try {
-        $proveedor = Proveedores::findOrFail($id);
-        $proveedor->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Proveedor eliminado correctamente'
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nombre' => 'required',
+            'upc' => 'required'
         ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No se pudo eliminar el proveedor: ' . $e->getMessage()
-        ], 500);
+
+        $proveedor = Proveedores::findOrFail($id);
+        $proveedor->update([
+            'nombre' => $request->nombre,
+            'upc' => $request->upc
+        ]);
+
+        return redirect()->route('proveedores.index')->with('success', 'Proveedor actualizado correctamente.');
     }
-}
+    public function destroy($id)
+    {
+        try {
+            $proveedor = Proveedores::findOrFail($id);
+            $proveedor->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Proveedor eliminado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pudo eliminar el proveedor: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

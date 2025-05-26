@@ -1,113 +1,183 @@
 <div class="box box-info padding-1">
     <div class="box-body row">
-<!-- Código -->
-<!-- Código -->
-<div class="form-group col-md-4">
-    {!! html()->label('Código (13 dígitos)')->for('codigo') !!} <!-- Cambiado a 13 dígitos -->
-    {!! html()->text('codigo', $producto->codigo ?? old('codigo'))
-        ->class('form-control' . ($errors->has('codigo') ? ' is-invalid' : ''))
-        ->id('codigo')
-        ->attributes(['readonly' => 'readonly']) !!}
-    @error('codigo')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
+        <div class="form-group col-md-4">
+            {!! html()->label('Código (13 dígitos)')->for('codigo')->class('form-label') !!}
+            <div class="input-group">
+                {!! html()->text('codigo', $producto->codigo ?? old('codigo'))
+                    ->class('form-control' . ($errors->has('codigo') ? ' is-invalid' : ''))
+                    ->id('codigo')
+                    ->attributes(['readonly' => 'readonly']) !!}
+                <button class="btn btn-outline-secondary" type="button" id="btnGenerarCodigo">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                @error('codigo')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
 
-        <div class="form-group col-md-5">
-            {!! html()->label('Producto')->for('producto') !!}
+        <div class="form-group col-md-6">
+            {!! html()->label('Nombre del Producto')->for('producto')->class('form-label') !!}
             {!! html()->text('producto', $producto->producto)
                 ->class('form-control' . ($errors->has('producto') ? ' is-invalid' : ''))
-                ->placeholder('Producto') !!}
+                ->placeholder('Ingrese el nombre del producto') !!}
             @error('producto')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
-        <div class="form-group col-md-3">
-            {!! html()->label('Precio Compra')->for('precio_compra') !!}
-            {!! html()->text('precio_compra', $producto->precio_compra)
-                ->class('form-control' . ($errors->has('precio_compra') ? ' is-invalid' : ''))
-                ->placeholder('Precio Compra') !!}
-            @error('precio_compra')
+        <div class="form-group col-md-2">
+            {!! html()->label('Categoría')->for('id_categoria')->class('form-label') !!}
+            <select name="id_categoria" id="id_categoria" class="form-control select-filtro">
+                <option value="">-- Seleccione --</option>
+                @foreach($categorias as $key => $value)
+                    <option value="{{ $key }}" {{ $producto->id_categoria == $key ? 'selected' : '' }}>{{ $value }}</option>
+                @endforeach
+            </select>
+            @error('id_categoria')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
         <div class="form-group col-md-3">
-            {!! html()->label('Precio Venta')->for('precio_venta') !!}
-            {!! html()->text('precio_venta', $producto->precio_venta)
-                ->class('form-control' . ($errors->has('precio_venta') ? ' is-invalid' : ''))
-                ->placeholder('Precio Venta') !!}
-            @error('precio_venta')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
+            {!! html()->label('Precio Compra')->for('precio_compra')->class('form-label') !!}
+            <div class="input-group">
+                <span class="input-group-text">$</span>
+                {!! html()->text('precio_compra', $producto->precio_compra)
+                    ->class('form-control' . ($errors->has('precio_compra') ? ' is-invalid' : ''))
+                    ->placeholder('0.00') !!}
+                @error('precio_compra')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
-       <!-- SELECT de Categoría -->
-<!-- SELECT de Categoría -->
-<div class="form-group col-md-4">
-    <label for="id_categoria">Categoría</label>
-<select name="id_categoria" id="id_categoria" class="form-control">
-    <option value="">-- Selecciona una categoría --</option>
-    @foreach($categorias as $key => $value)
-        <option value="{{ $key }}" {{ $producto->id_categoria == $key ? 'selected' : '' }}>{{ $value }}</option>
-    @endforeach
-</select>
-</div>
+        <div class="form-group col-md-3">
+            {!! html()->label('Precio Venta')->for('precio_venta')->class('form-label') !!}
+            <div class="input-group">
+                <span class="input-group-text">$</span>
+                {!! html()->text('precio_venta', $producto->precio_venta)
+                    ->class('form-control' . ($errors->has('precio_venta') ? ' is-invalid' : ''))
+                    ->placeholder('0.00') !!}
+                @error('precio_venta')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
 
-<!-- Campo Proveedor (visible solo para mostrar el nombre) -->
-<div class="form-group col-md-4">
-    <label for="proveedor_nombre">Proveedor</label>
-<input type="text" name="proveedor" id="proveedor_nombre" class="form-control" readonly>
-</div>
+        <div class="form-group col-md-6">
+            {!! html()->label('Proveedor')->for('proveedor_nombre')->class('form-label') !!}
+            <div class="input-group">
+                <input type="text" name="proveedor" id="proveedor_nombre" class="form-control" readonly>
 
-<!-- Campo Proveedor oculto para enviar ID -->
-<input type="hidden" id="id_proveedor" name="id_proveedor">
+            </div>
+            <input type="hidden" id="id_proveedor" name="id_proveedor">
+        </div>
 
-     <!-- Código de Barras -->
-<div class="form-group col-md-4">
-    {!! html()->label('Código de Barras (EAN-13)')->for('codigo_barras') !!}
-    {!! html()->text('codigo_barras', $producto->codigo_barras ?? old('codigo_barras'))
-        ->class('form-control' . ($errors->has('codigo_barras') ? ' is-invalid' : ''))
-        ->id('codigo_barras')
-        ->attributes(['readonly' => 'readonly']) !!}
-    @error('codigo_barras')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
+        <div class="form-group col-md-6">
+            {!! html()->label('Código de Barras (EAN-13)')->for('codigo_barras')->class('form-label') !!}
+            <div class="input-group">
+                {!! html()->text('codigo_barras', $producto->codigo_barras ?? old('codigo_barras'))
+                    ->class('form-control' . ($errors->has('codigo_barras') ? ' is-invalid' : ''))
+                    ->id('codigo_barras')
+                    ->attributes(['readonly' => 'readonly']) !!}
+                <button class="btn btn-outline-secondary" type="button" id="btnGenerarBarras">
+                    <i class="fas fa-barcode"></i>
+                </button>
+                @error('codigo_barras')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
 
-    <div class="mt-2" id="barcode-container">
-        @if(!empty($producto->codigo_barras))
-            <svg id="barcode-svg"></svg>
-            <small class="text-muted d-block mt-1">{{ $producto->codigo_barras }}</small>
-        @else
-            <div class="alert alert-info p-2">Seleccione una categoría</div>
-        @endif
+            <div class="mt-3 text-center" id="barcode-container">
+                @if(!empty($producto->codigo_barras))
+                    <svg id="barcode-svg" class="border p-2 bg-white rounded"></svg>
+                    <small class="text-muted d-block mt-1">{{ $producto->codigo_barras }}</small>
+                @else
+                    <div class="alert alert-info p-2 mb-0">El código de barras se generará automáticamente</div>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group col-md-6">
+            {!! html()->label('Imagen del Producto')->for('foto')->class('form-label') !!}
+            <div class="file-upload-wrapper border rounded p-3 text-center">
+                {!! html()->file('foto')
+                    ->class('form-control visually-hidden' . ($errors->has('foto') ? ' is-invalid' : ''))
+                    ->id('fotoInput') !!}
+
+                <div id="imagePreview" class="mb-3">
+                    @if(isset($producto) && $producto->foto)
+                        <img src="{{ asset('storage/'.$producto->foto) }}" alt="Imagen actual" class="img-thumbnail" style="max-height: 200px;">
+                    @else
+                        <div class="placeholder-image bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <div class="text-center">
+                                <i class="fas fa-image fa-4x text-muted mb-2"></i>
+                                <p class="text-muted">No hay imagen seleccionada</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <label for="fotoInput" class="btn btn-outline-primary">
+                    <i class="fas fa-upload me-2"></i>Seleccionar Imagen
+                </label>
+                @error('foto')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+    </div>
+
+    <div class="box-footer mt-4 text-right">
+        {!! html()->a('/productos', __('Cancelar'))->class('btn btn-danger me-2') !!}
+        {!! html()->button(__('Guardar Producto'))->type('submit')->class('btn btn-primary') !!}
     </div>
 </div>
-<!-- Foto (solo un campo) -->
-<div class="form-group col-md-4">
-    {!! html()->label('Foto')->for('foto') !!}
-    {!! html()->file('foto')
-        ->class('form-control' . ($errors->has('foto') ? ' is-invalid' : '')) !!}
-    @error('foto')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
 
-    @if(isset($producto) && $producto->foto)
-        <img src="{{ asset('storage/'.$producto->foto) }}" alt="Imagen actual" class="img-thumbnail mt-2" style="max-height: 100px;">
-    @else
-        <p class="text-muted mt-2">Sin imagen</p>
-    @endif
-</div>
+<style>
+    .form-label {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
 
+    .select-filtro {
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        transition: all 0.3s;
+    }
 
-    </div>
+    .select-filtro:focus {
+        border-color: #3490dc;
+        box-shadow: 0 0 0 0.25rem rgba(52, 144, 220, 0.25);
+    }
 
-    <div class="box-footer mt20 text-right">
-        {!! html()->a('/productos', __('Cancel'))->class('btn btn-danger') !!}
-        {!! html()->button(__('Submit'))->type('submit')->class('btn btn-primary') !!}
-    </div>
-</div>
+    .file-upload-wrapper {
+        transition: all 0.3s;
+        background-color: #f8f9fa;
+    }
+
+    .file-upload-wrapper:hover {
+        background-color: #e9ecef;
+    }
+
+    .placeholder-image {
+        border: 2px dashed #dee2e6;
+        border-radius: 5px;
+    }
+
+    #barcode-container {
+        background-color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+</style>
 @section('js')
 <!-- Cargar la librería JsBarcode -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>

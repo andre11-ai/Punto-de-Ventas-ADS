@@ -15,13 +15,11 @@ class ArticulosSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        // 1. Asegurar proveedores existentes
         if (Proveedores::count() === 0) {
             $this->call(ProveedoresSeeder::class);
         }
         $proveedores = Proveedores::all();
 
-        // 2. Crear 30 categorías
         $categoriasPrincipales = [
             'Bebidas', 'Lácteos', 'Panadería', 'Carnes', 'Frutas y Verduras',
             'Snacks', 'Cuidado Personal', 'Limpieza', 'Electrónicos', 'Mascotas',
@@ -51,7 +49,6 @@ class ArticulosSeeder extends Seeder
 
         $categorias = Categoria::all();
 
-        // 3. Crear 30 productos con códigos de 13 dígitos
         $productos = [
             // Bebidas
             ['Coca-Cola 600ml', 12.50, 15.00, '7501054530015'],

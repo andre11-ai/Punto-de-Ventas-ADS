@@ -8,7 +8,7 @@ class Promocion extends Model
 {
     protected $table = 'promociones';
 
-    protected $fillable = ['tipo', 'id_categoria', 'id_proveedor'];
+    protected $fillable = ['tipo', 'id_categoria', 'id_proveedor', 'id_producto', 'fecha_inicio', 'fecha_fin'];
 
     public function categoria() {
         return $this->belongsTo(Categoria::class, 'id_categoria');
@@ -20,6 +20,11 @@ class Promocion extends Model
 
     public function productos() {
         return $this->hasMany(Producto::class, 'promocion_id');
+
+    }
+
+    public function producto() {
+        return $this->belongsTo(Producto::class, 'id_producto');
     }
 
 }
