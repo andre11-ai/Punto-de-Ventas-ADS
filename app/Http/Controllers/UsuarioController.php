@@ -56,6 +56,7 @@ class UsuarioController extends Controller
             'email'    => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6'],
             'rol'      => ['required', 'in:,Admin,User'],
+            'turno'    => ['required', 'in:Matutino,Vespertino,Mixto'], // nuevo campo turno
         ]);
 
         $data['password'] = Hash::make($data['password']);
@@ -92,6 +93,7 @@ class UsuarioController extends Controller
             'email'    => ['required', 'email', 'unique:users,email,' . $usuario->id],
             'password' => ['nullable', 'string', 'min:6'],
             'rol'      => ['required', 'in:Super-Admin,Admin,User'],
+            'turno'    => ['required', 'in:Matutino,Vespertino,Mixto'], // nuevo campo turno
         ]);
 
         if ($request->filled('password')) {

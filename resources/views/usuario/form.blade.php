@@ -89,6 +89,33 @@
         @enderror
       </div>
 
+    {{-- Turno --}}
+    <div class="form-group col-md-6 mb-4">
+      <label for="turno" class="form-label fw-bold text-primary">
+        <i class="fas fa-clock me-1"></i> Turno
+      </label>
+      <div class="input-group">
+        <span class="input-group-text bg-light">
+          <i class="fas fa-clock text-primary"></i>
+        </span>
+        <select
+          name="turno"
+          id="turno"
+          class="form-control{{ $errors->has('turno') ? ' is-invalid' : '' }}"
+        >
+          <option value="">Selecciona un turno</option>
+          <option value="Matutino"  {{ old('turno', $usuario->turno) === 'Matutino'  ? 'selected' : '' }}>Matutino</option>
+          <option value="Vespertino" {{ old('turno', $usuario->turno) === 'Vespertino' ? 'selected' : '' }}>Vespertino</option>
+          <option value="Mixto"      {{ old('turno', $usuario->turno) === 'Mixto'      ? 'selected' : '' }}>Mixto</option>
+        </select>
+      </div>
+      @error('turno')
+        <div class="invalid-feedback d-block">
+          <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+        </div>
+      @enderror
+    </div>
+
       {{-- Contraseña --}}
       <div class="form-group col-md-6 mb-4">
         <label for="password" class="form-label fw-bold text-primary">

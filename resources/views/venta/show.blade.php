@@ -26,7 +26,6 @@
                                 <tr>
                                     <th>Id</th>
                                     <th>Monto</th>
-                                    <th>Cliente</th>
                                     <th>Fecha/Hora</th>
                                     <th></th>
                                 </tr>

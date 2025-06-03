@@ -1,0 +1,11 @@
+[90m= [39m[34;4mGloudemans\Shoppingcart\CartItem[39;24m {#6891
+    +[1mrowId[22m: "[32m027c91341fd5cf4d2579b49c4b6a90da[39m",
+    +[1mid[22m: "[32m1[39m",
+    +[1mqty[22m: [35m1[39m,
+    +[1mname[22m: "[32mProducto prueba[39m",
+    +[1mprice[22m: [33m10.0[39m,
+    +[1moptions[22m: [34;4mGloudemans\Shoppingcart\CartItemOptions[39;24m {#6890
+      [34mall[39m: [],
+    },
+  }
+

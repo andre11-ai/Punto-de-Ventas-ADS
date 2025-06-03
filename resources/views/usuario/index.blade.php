@@ -125,6 +125,7 @@
                 <th><i class="fas fa-hashtag me-1"></i>ID</th>
                 <th><i class="fas fa-user me-1"></i>Nombre</th>
                 <th><i class="fas fa-envelope me-1"></i>Correo</th>
+                <th><i class="fas fa-clock me-1"></i>Turno</th>       {{-- <-- Nueva columna --}}
                 <th><i class="fas fa-user-tag me-1"></i>Rol</th>
                 <th><i class="fas fa-cogs me-1"></i>Acciones</th>
               </tr>
@@ -135,6 +136,15 @@
                   <td>{{ $usuario->id }}</td>
                   <td>{{ $usuario->name }}</td>
                   <td>{{ $usuario->email }}</td>
+                  <td>                                           {{-- ← Nueva celda Turno --}}
+                    @if($usuario->turno === 'Matutino')
+                      <span class="badge bg-info">Matutino</span>
+                    @elseif($usuario->turno === 'Vespertino')
+                      <span class="badge bg-warning">Vespertino</span>
+                    @else
+                      <span class="badge bg-secondary">Mixto</span>
+                    @endif
+                  </td>
                   <td>
                     @php
                       $badgeClass = '';
@@ -167,6 +177,16 @@
               @empty
                 <tr>
                   <td colspan="5" class="empty-state">
+                    <i class="fas fa-user-slash fa-2x"></i>
+                    <h5 class="mt-3">No hay usuarios registrados</h5>
+                    <p class="text-muted">Comienza agregando un nuevo usuario</p>
+                    <a href="{{ route('usuarios.create') }}" class="btn btn-primary mt-2">
+                      <i class="fas fa-plus me-1"></i>Agregar Usuario
+                    </a>
+                  </td>
+                </tr>
+                +                <tr>
+                  <td colspan="6" class="empty-state"> {{-- Aumentamos a 6 --}}
                     <i class="fas fa-user-slash fa-2x"></i>
                     <h5 class="mt-3">No hay usuarios registrados</h5>
                     <p class="text-muted">Comienza agregando un nuevo usuario</p>

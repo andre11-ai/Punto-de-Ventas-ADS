@@ -9,7 +9,7 @@
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
         "guzzlehttp/guzzle": "^7.9",
-        "hardevine/shoppingcart": "^3.4",
+        "hardevine/shoppingcart": "*",
         "jeroennoten/laravel-adminlte": "^3.15",
         "laravel/breeze": "^2.3",
         "laravel/framework": "^12.9",

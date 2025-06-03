@@ -14,6 +14,8 @@
     use App\Http\Controllers\PromocionController;
 
 
+
+
     use Illuminate\Support\Facades\Route;
 
         Route::get('/', [AuthenticatedSessionController::class, 'create'])
@@ -70,6 +72,9 @@
         Route::get('/venta/cliente', [VentaController::class, 'cliente'])->name('venta.cliente');
         Route::post('/venta', [VentaController::class, 'store'])->name('venta.store');
         Route::get('/venta/{id}/ticket', [VentaController::class, 'ticket'])->name('venta.ticket');
+
+
+
 
     });
 

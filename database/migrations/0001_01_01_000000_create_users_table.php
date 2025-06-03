@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('password');
             $table->enum('rol', ['Super-Admin','Admin','User'])
                   ->default('User');
+            $table->enum('turno', ['Matutino', 'Vespertino', 'Mixto'])
+                  ->default('Mixto');
             $table->rememberToken();
             $table->timestamps();
         });

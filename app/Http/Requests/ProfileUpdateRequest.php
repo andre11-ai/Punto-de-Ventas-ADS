@@ -18,6 +18,14 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'turno' => ['required', Rule::in(['Matutino','Vespertino','Mixto'])],// nuevo campo turno
+        ];
+    }
+     public function messages(): array
+    {
+        return [
+            'turno.required' => 'Debes seleccionar un turno',
+            'turno.in'       => 'El turno seleccionado no es válido',
         ];
     }
 }

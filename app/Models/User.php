@@ -9,13 +9,13 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable{
-    
+
     use HasApiTokens, HasFactory, Notifiable;
 
     static $rules = [
         'name' => 'required',
         'email' => 'required',
-        'password' => 'required'
+        'password' => 'required',
       ];
     /**
      * The attributes that are mass assignable.
@@ -27,6 +27,7 @@ class User extends Authenticatable{
         'email',
         'password',
         'rol', // nuevo campo rol
+        'turno', // nuevo campo turno
     ];
 
     /**

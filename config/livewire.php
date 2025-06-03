@@ -156,4 +156,7 @@ return [
     */
 
     'pagination_theme' => 'tailwind',
+
+    'manifest_path' => null,
+
 ];

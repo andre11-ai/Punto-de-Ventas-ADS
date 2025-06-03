@@ -40,7 +40,7 @@ Route::middleware('auth')->group(function () {
                 ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
-    
+
     Route::get('verify-email', EmailVerificationPromptController::class)
                 ->name('verification.notice');
 
@@ -61,4 +61,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
+                // Antes de las rutas auth
+\Livewire\Livewire::setUpdateRoute(function ($handle) {
+    return Route::post('/livewire/update', $handle);
+});
 });

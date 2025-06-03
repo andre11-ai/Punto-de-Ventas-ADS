@@ -14,28 +14,36 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <!-- Email Address -->
+     <!-- Número de Empleado (ID)-->
             <div>
-                <x-input-label for="email" :value="__('Correo Electrónico')" class="text-gray-700 dark:text-gray-300" />
+                <x-input-label for="id" :value="__('Número de Empleado')" class="text-gray-700 dark:text-gray-300" />
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="4" width="18" height="16" rx="2" />
-                            <circle cx="9" cy="10" r="2" />
-                            <path d="M15 8h2" />
-                            <path d="M15 12h2" />
-                            <path d="M7 16h10" />
+                        <!-- Reutilizamos el mismo icono de “usuario” o “tarjeta” -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <!-- Aquí puedes reemplazar el SVG si prefieres un icono “#” o “ID” -->
+                            <path fill-rule="evenodd" d="M3 3h14v2H3V3zm0 4h14v2H3V7zm0 4h14v2H3v-2zm0 4h14v2H3v-2z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <x-text-input id="email" class="block mt-1 w-full pl-10 rounded-lg border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-500 focus:ring-green-500 dark:focus:ring-green-500" type="email" name="email" :value="old('email')" required autofocus autocomplete="off" placeholder="usuario@ejemplo.com" />
+                    <x-text-input
+                        id="id"
+                        class="block mt-1 w-full pl-10 rounded-lg border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-500 focus:ring-green-500 dark:focus:ring-green-500"
+                        type="text"
+                        name="id"
+                        :value="old('id')"
+                        required
+                        autofocus
+                        autocomplete="off"
+                        placeholder="Ingresa tu ID"
+                    />
                 </div>
-                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                <x-input-error :messages="$errors->get('id')" class="mt-2" />
             </div>
 
             <!-- Password -->
             <div class="mt-4">
                 <x-input-label for="password" :value="__('Contraseña')" class="text-gray-700 dark:text-gray-300" />
-                <div class="relative">
+                <div class="re        lative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
@@ -89,11 +97,8 @@
             const hideIcon = document.querySelector('.toggle-password-icon-hide');
 
             togglePassword.addEventListener('click', function() {
-                // Cambiar el tipo de input
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
-
-                // Cambiar el icono
                 showIcon.classList.toggle('hidden');
                 hideIcon.classList.toggle('hidden');
             });

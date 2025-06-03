@@ -66,20 +66,13 @@
 
 <body>
     <div class="ticket">
-        <div class="business-info">
-            <h3>{{$company->nombre}}</h3>
-            <p>{{$company->direccion}}</p>
-            <p>{{$company->telefono}}</p>
-            <p>{{$company->correo}}</p>
-        </div>
+
         ==================================
         <div class="ticket-details">
             <p>Fecha: {{ $fecha . ' ' . $hora }}</p>
             <p>Folio: {{ $venta->id }}</p>
             ==================================
-            <p>Cliente: {{ $venta->nombre}}</p>
-            <p>Teléfono: {{ $venta->telefono }}</p>
-            <p>Dirección: {{ $venta->direccion }}</p>
+
             <table>
                 <thead>
                     <tr>
@@ -98,7 +91,7 @@
                             <td>{{ $producto->producto }}</td>
                             <td>{{ $producto->precio }}</td>
                         </tr>
-                    @endforeach                    
+                    @endforeach
                 </tbody>
                 <tfoot>
                     <tr>

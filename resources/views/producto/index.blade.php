@@ -521,7 +521,7 @@
                     {
                         data: 'foto',
                         render: function(data) {
-                            return data ? `<img src="/storage/${data}" alt="Foto" style="max-width: 60px;">` : 'Sin imagen';
+    return data ? `<img src="/storage/${data}" alt="Foto" style="max-width: 60px;">` : 'Sin imagen';
                         }
                     },
                     {
