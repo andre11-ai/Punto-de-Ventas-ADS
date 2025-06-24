@@ -289,7 +289,7 @@
                                                 <option value="2x1">2x1</option>
                                                 <option value="3x2">3x2</option>
                                                 <option value="50%">50% de descuento</option>
-                                                <option value="Precio especial">Precio especial</option>
+                                                <option value="Precio especial">Precio especial (15%)</option>
                                                 <option value="Segunda unidad al 30%">Segunda unidad al 30%</option>
                                             </select>
                                         </div>
@@ -492,7 +492,6 @@
                 }
             });
 
-            // Configuración de DataTables
             const table = new DataTable('#tblProducts', {
                 responsive: true,
                 fixedHeader: true,
@@ -578,23 +577,19 @@
                 order: [[0, 'desc']]
             });
 
-            // Abrir modal de gestión de promociones
             $('#btnPromociones').on('click', function() {
                 $('#promocionModal').modal('show');
             });
 
-            // Botón "Ver Promociones" dentro del modal de gestión
             $('#btnVerPromocionesVigentes').on('click', function() {
                 $('#promocionModal').modal('hide');
                 $('#promocionesVigentesModal').modal('show');
             });
 
-            // Cerrar modal de promociones vigentes y volver a gestión
             $('#promocionesVigentesModal').on('hidden.bs.modal', function () {
                 $('#promocionModal').modal('show');
             });
 
-            // Validación del formulario de creación
             $('#formPromocion').submit(function(e) {
                 e.preventDefault();
 
@@ -611,28 +606,23 @@
                 this.submit();
             });
 
-            // Función para abrir el modal de edición
 $(document).on('click', '.btn-editar-promocion', function(e) {
     e.preventDefault();
     const productoId = $(this).data('id');
     const tipoPromocion = $(this).data('tipo');
 
-    // Mostrar el modal inmediatamente con spinner de carga
     $('#editarPromocionModal').modal('show');
 
-    // Cargar el contenido del formulario
     $.ajax({
         url: `/productos/${productoId}/edit-promocion`,
         method: 'GET',
         success: function(response) {
             $('#contenidoEditarPromocion').html(response);
 
-            // Configurar valores iniciales
             if(tipoPromocion) {
                 $('#editarPromocionModal select[name="tipo_promocion"]').val(tipoPromocion);
             }
 
-            // Configurar fecha mínima
             $('#editarPromocionModal input[name="fecha_fin"]').attr('min', new Date().toISOString().split('T')[0]);
         },
         error: function(xhr) {
@@ -652,7 +642,6 @@ $(document).on('click', '.btn-editar-promocion', function(e) {
     });
 });
 
-            // Manejador para guardar los cambios en la promoción
             $(document).on('click', '#btnGuardarPromocion', function() {
                 const form = $('#formEditarPromocion');
                 if(form.length > 0) {
@@ -695,7 +684,6 @@ $(document).on('click', '.btn-editar-promocion', function(e) {
                 }
             });
 
-            // Eliminar promoción
             $(document).on('click', '.btn-eliminar-promocion', function() {
                 const productoId = $(this).data('id');
 
@@ -735,7 +723,6 @@ $(document).on('click', '.btn-editar-promocion', function(e) {
                 });
             });
 
-            // Eliminar producto
             $(document).on('click', '.btn-delete', function(e) {
                 e.preventDefault();
                 const productId = $(this).data('id');
@@ -766,7 +753,6 @@ $(document).on('click', '.btn-editar-promocion', function(e) {
                 });
             });
 
-            // Cargar categorías al seleccionar proveedor
             $('#id_proveedor').on('change', function() {
                 const proveedorId = $(this).val();
                 const $categoriaSelect = $('#id_categoria');
@@ -810,7 +796,6 @@ $(document).on('click', '.btn-editar-promocion', function(e) {
                 });
             });
 
-            // Cargar productos al seleccionar categoría
             $('#id_categoria').on('change', function() {
                 const categoriaId = $(this).val();
                 const $productosContainer = $('#productosContainer');
@@ -852,7 +837,6 @@ $(document).on('click', '.btn-editar-promocion', function(e) {
                 });
             });
 
-            // Función para verificar y eliminar promociones expiradas
             function verificarPromocionesExpiradas() {
                 $.ajax({
                     url: '{{ route("promociones.verificar") }}',
@@ -869,7 +853,6 @@ $(document).on('click', '.btn-editar-promocion', function(e) {
                 });
             }
 
-            // Ejecutar al cargar la página
             verificarPromocionesExpiradas();
         });
     </script>

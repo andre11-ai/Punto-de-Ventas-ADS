@@ -64,4 +64,12 @@ return [
 
     ],
 
+    'instances' => [
+    'shopping' => [
+        'driver' => 'session',
+        'identifier' => 'shopping_cart',
+        'instance' => 'shopping',
+    ],
+],
+
 ];

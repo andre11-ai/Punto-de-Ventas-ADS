@@ -323,7 +323,7 @@ return [
             ],
         ],
         [
-            'text' => 'Clientes',
+            'text' => 'Clientes Deudores',
             'url'  => 'clientes',
             'icon'        => 'fas fa-fw fa-users'
         ],

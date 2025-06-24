@@ -16,7 +16,7 @@
             <div class="info-box shadow-sm bg-gradient-success">
                 <span class="info-box-icon"><i class="fas fa-users fa-2x"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Clientes</span>
+                    <span class="info-box-text">Clientes Deudores</span>
                     <span class="info-box-number">{{ $totales['clients'] }}</span>
                     <div class="progress">
                         <div class="progress-bar" style="width: 70%"></div>

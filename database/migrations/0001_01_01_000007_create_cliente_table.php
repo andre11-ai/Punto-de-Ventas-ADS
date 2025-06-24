@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clientes', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-            $table->string('telefono', 30);
-            $table->string('direccion');
-            $table->timestamps();
-        });
+    Schema::create('clientes', function (Blueprint $table) {
+        $table->id();
+        $table->string('nombre');
+        $table->string('telefono', 30);
+        $table->date('fecha_deuda')->nullable(); // fecha en la que se registró la deuda
+                $table->decimal('deuda_inicial', 10, 2)->nullable();
+        $table->decimal('total_compra', 10, 2)->nullable();
+        $table->timestamps();
+    });
     }
 
     /**
