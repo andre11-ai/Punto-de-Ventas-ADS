@@ -14,6 +14,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
+
         #tblProducts {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -390,7 +391,6 @@
 
                                         @foreach($productosConPromocion as $producto)
                                             @php
-                                                // Verificar si el producto tiene promoción y si está activa
                                                 if($producto->promocion):
                                                     $fechaFin = \Carbon\Carbon::parse($producto->promocion->fecha_fin);
                                                     $estaActiva = !$fechaFin->isPast();
@@ -485,7 +485,6 @@
 
     <script>
         $(document).ready(function() {
-            // Configuración de CSRF token para AJAX
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -520,7 +519,7 @@
                     {
                         data: 'foto',
                         render: function(data) {
-    return data ? `<img src="/storage/${data}" alt="Foto" style="max-width: 60px;">` : 'Sin imagen';
+                        return data ? `<img src="/storage/${data}" alt="Foto" style="max-width: 60px;">` : 'Sin imagen';
                         }
                     },
                     {
@@ -542,7 +541,6 @@
                         data: 'promocion',
                         render: function(data) {
                             if (data && data.tipo) {
-                                // Verificar si la promoción está activa
                                 const fechaFin = new Date(data.fecha_fin);
                                 const hoy = new Date();
                                 const estaActiva = fechaFin >= hoy;
@@ -606,41 +604,41 @@
                 this.submit();
             });
 
-$(document).on('click', '.btn-editar-promocion', function(e) {
-    e.preventDefault();
-    const productoId = $(this).data('id');
-    const tipoPromocion = $(this).data('tipo');
+            $(document).on('click', '.btn-editar-promocion', function(e) {
+                e.preventDefault();
+                const productoId = $(this).data('id');
+                const tipoPromocion = $(this).data('tipo');
 
-    $('#editarPromocionModal').modal('show');
+                $('#editarPromocionModal').modal('show');
 
-    $.ajax({
-        url: `/productos/${productoId}/edit-promocion`,
-        method: 'GET',
-        success: function(response) {
-            $('#contenidoEditarPromocion').html(response);
+                $.ajax({
+                    url: `/productos/${productoId}/edit-promocion`,
+                    method: 'GET',
+                    success: function(response) {
+                        $('#contenidoEditarPromocion').html(response);
 
-            if(tipoPromocion) {
-                $('#editarPromocionModal select[name="tipo_promocion"]').val(tipoPromocion);
-            }
+                        if(tipoPromocion) {
+                            $('#editarPromocionModal select[name="tipo_promocion"]').val(tipoPromocion);
+                        }
 
-            $('#editarPromocionModal input[name="fecha_fin"]').attr('min', new Date().toISOString().split('T')[0]);
-        },
-        error: function(xhr) {
-            let errorMessage = 'Error al cargar el formulario. Por favor, intente nuevamente.';
+                        $('#editarPromocionModal input[name="fecha_fin"]').attr('min', new Date().toISOString().split('T')[0]);
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Error al cargar el formulario. Por favor, intente nuevamente.';
 
-            if (xhr.status === 422 || xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage = xhr.responseJSON.message;
-            }
+                        if (xhr.status === 422 || xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
 
-            $('#contenidoEditarPromocion').html(`
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
-                </div>
-            `);
-            console.error('Error al cargar formulario:', xhr.responseText);
-        }
-    });
-});
+                        $('#contenidoEditarPromocion').html(`
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
+                            </div>
+                        `);
+                        console.error('Error al cargar formulario:', xhr.responseText);
+                    }
+                });
+            });
 
             $(document).on('click', '#btnGuardarPromocion', function() {
                 const form = $('#formEditarPromocion');

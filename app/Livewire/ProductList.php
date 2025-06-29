@@ -164,43 +164,72 @@ class ProductList extends Component
         $this->dispatch('cartItemsUpdated');
     }
 
-public function procesarVenta($metodo = null, $recibido = null)
-{
-    if ($metodo !== null) {
-        $this->metodoPago = is_array($metodo) ? $metodo['metodo'] : $metodo;
-    }
-
-    if ($recibido !== null && !is_array($recibido)) {
-        $this->montoRecibido = floatval($recibido);
-    }
-
-    try {
-        $cart = Cart::instance('shopping');
-
-        if ($cart->count() === 0) {
-            return ['success' => false, 'message' => 'El carrito está vacío'];
+    public function procesarVenta($metodo = null, $recibido = null)
+    {
+        if ($metodo !== null) {
+            $this->metodoPago = is_array($metodo) ? $metodo['metodo'] : $metodo;
         }
 
-        $total = $this->calcularTotal();
+        if ($recibido !== null && !is_array($recibido)) {
+            $this->montoRecibido = floatval($recibido);
+        }
 
-        // 🟡 SI ES ADEUDO, se crea cliente y detalle_deuda, no venta
-        if ($this->metodoPago === 'adeudo' && is_array($recibido)) {
-            $cliente = Cliente::create([
-                'nombre' => $recibido['nombre'],
-                'telefono' => $recibido['telefono'],
-                'direccion' => '',
-                'fecha_deuda' => now(),
-                'deuda_inicial' => $total,
-                'total_compra' => $total,
+        try {
+            $cart = Cart::instance('shopping');
+
+            if ($cart->count() === 0) {
+                return ['success' => false, 'message' => 'El carrito está vacío'];
+            }
+
+            $total = $this->calcularTotal();
+
+            if ($this->metodoPago === 'adeudo' && is_array($recibido)) {
+                $cliente = Cliente::create([
+                    'nombre' => $recibido['nombre'],
+                    'telefono' => $recibido['telefono'],
+                    'direccion' => '',
+                    'fecha_deuda' => now(),
+                    'deuda_inicial' => $total,
+                    'total_compra' => $total,
+                ]);
+
+                foreach ($cart->content() as $item) {
+                    \App\Models\DetalleDeuda::create([
+                        'cliente_id' => $cliente->id,
+                        'producto_id' => $item->id,
+                        'precio' => $item->price,
+                        'cantidad' => $item->qty,
+                        'promocion_aplicada' => $item->options->promocion ?? null,
+                    ]);
+                }
+
+                $cart->destroy();
+                $this->refreshCart();
+
+                return [
+                    'success' => true,
+                    'cliente_id' => $cliente->id
+                ];
+            }
+
+            $pagoRecibido = $this->metodoPago === 'efectivo'
+                ? ($this->montoRecibido > 0 ? $this->montoRecibido : $total)
+                : $total;
+
+            $venta = Venta::create([
+                'total' => $total,
+                'pago_recibido' => $pagoRecibido,
+                'id_usuario' => auth()->id(),
+                'metodo_pago' => $this->metodoPago
             ]);
 
             foreach ($cart->content() as $item) {
-                \App\Models\DetalleDeuda::create([
-                    'cliente_id' => $cliente->id,
-                    'producto_id' => $item->id,
+                Detalleventa::create([
                     'precio' => $item->price,
                     'cantidad' => $item->qty,
-                    'promocion_aplicada' => $item->options->promocion ?? null,
+                    'id_producto' => $item->id,
+                    'id_venta' => $venta->id,
+                    'promocion_aplicada' => $item->options->promocion ?? null
                 ]);
             }
 
@@ -209,52 +238,17 @@ public function procesarVenta($metodo = null, $recibido = null)
 
             return [
                 'success' => true,
-                'cliente_id' => $cliente->id
+                'ticket' => $venta->id,
+                'total' => $total
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
             ];
         }
-
-        // 🟢 SI ES PAGO NORMAL
-        $pagoRecibido = $this->metodoPago === 'efectivo'
-            ? ($this->montoRecibido > 0 ? $this->montoRecibido : $total)
-            : $total;
-
-        $venta = Venta::create([
-            'total' => $total,
-            'pago_recibido' => $pagoRecibido,
-            'id_usuario' => auth()->id(),
-            'metodo_pago' => $this->metodoPago
-        ]);
-
-        foreach ($cart->content() as $item) {
-            Detalleventa::create([
-                'precio' => $item->price,
-                'cantidad' => $item->qty,
-                'id_producto' => $item->id,
-                'id_venta' => $venta->id,
-                'promocion_aplicada' => $item->options->promocion ?? null
-            ]);
-        }
-
-        $cart->destroy();
-        $this->refreshCart();
-
-        return [
-            'success' => true,
-            'ticket' => $venta->id,
-            'total' => $total
-        ];
-
-    } catch (\Exception $e) {
-        return [
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
-        ];
     }
-}
-
-
-
-
 
 
     private function calcularTotal()
@@ -331,4 +325,6 @@ public function procesarVenta($metodo = null, $recibido = null)
     {
         return $this->calcularTotal();
     }
+
+
 }

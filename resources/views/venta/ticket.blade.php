@@ -23,14 +23,24 @@
         .footer { margin-top: 20px; text-align: center; font-size: 11px; color: #777; }
         .thank-you { margin-top: 15px; font-style: italic; text-align: center; }
         .payment-method { margin: 10px 0; padding: 8px; background: #f5f5f5; border-radius: 4px; font-size: 13px; }
+        .logo {
+    text-align: center;
+    margin-bottom: 5px;
+}
+.logo img {
+    max-width: 70px;
+    max-height: 70px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+}
     </style>
 </head>
 <body>
     <div class="ticket">
         <div class="header">
-            @if($company && $company->logo)
-                <img src="{{ asset('storage/img/Logo-Negro.jpeg') }}" class="logo" alt="Logo">
-            @endif
+    <img src="{{ public_path('storage/img/Logo-Colo.png') }}" alt="Logo" style="display: block; margin: 0 auto 5px auto; max-width: 70px; max-height: 70px;">
+
 
             <div class="business-name">{{ $company->nombre }}</div>
             <div class="business-info">{{ $company->direccion }}</div>
