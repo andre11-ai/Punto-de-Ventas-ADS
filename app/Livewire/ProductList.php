@@ -10,7 +10,6 @@ use Livewire\WithPagination;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use App\Models\Cliente;
 
-
 class ProductList extends Component
 {
     use WithPagination;
@@ -66,7 +65,13 @@ class ProductList extends Component
 
     public function increaseQuantity($productId)
     {
-        $this->quantitySelector[$productId] = ($this->quantitySelector[$productId] ?? 1) + 1;
+        $product = Producto::find($productId);
+        if (!$product) return;
+
+        $currentQty = $this->quantitySelector[$productId] ?? 1;
+        if ($currentQty < $product->sku) {
+            $this->quantitySelector[$productId] = $currentQty + 1;
+        }
     }
 
     public function decreaseQuantity($productId)
@@ -82,25 +87,32 @@ class ProductList extends Component
 
     public function addToCart($productId)
     {
-        $product = Producto::with('promocion')->findOrFail($productId);
-        $qty = $this->quantitySelector[$productId] ?? 1;
-        $price = $product->precio_venta;
-        $promoLabel = $product->promocion->tipo ?? null;
+        $product = Producto::with('promocion')->find($productId);
+        if (!$product || $product->sku <= 0) return;
 
+        $qty = $this->quantitySelector[$productId] ?? 1;
+        if ($qty > $product->sku) {
+            $qty = $product->sku; // No permitir más que el stock
+        }
+
+        // Verificar si ya existe en el carrito y sumar cantidades sin pasar el stock
         $existingItem = Cart::instance('shopping')->search(fn($item) => $item->id == $productId)->first();
 
         if ($existingItem) {
-            Cart::instance('shopping')->update($existingItem->rowId, $existingItem->qty + $qty);
+            $nuevaCantidad = $existingItem->qty + $qty;
+            // Si la suma supera el stock, limitarla
+            $finalCantidad = min($nuevaCantidad, $product->sku);
+            Cart::instance('shopping')->update($existingItem->rowId, $finalCantidad);
         } else {
             Cart::instance('shopping')->add([
                 'id' => $product->id,
                 'name' => $product->producto,
-                'price' => $price,
+                'price' => $product->precio_venta,
                 'qty' => $qty,
                 'options' => [
                     'codigo_barras' => $product->codigo_barras,
                     'foto' => $product->foto,
-                    'promocion' => $promoLabel,
+                    'promocion' => $product->promocion->tipo ?? null,
                 ]
             ]);
         }
@@ -122,6 +134,13 @@ class ProductList extends Component
         if ($this->quantity[$rowId] < 1) {
             $this->removeFromCart($rowId);
             return;
+        }
+
+        // Validar que no se pueda poner más de lo disponible en stock
+        $item = Cart::instance('shopping')->get($rowId);
+        $product = Producto::find($item->id);
+        if ($product && $this->quantity[$rowId] > $product->sku) {
+            $this->quantity[$rowId] = $product->sku;
         }
 
         Cart::instance('shopping')->update($rowId, $this->quantity[$rowId]);
@@ -201,6 +220,13 @@ class ProductList extends Component
                         'cantidad' => $item->qty,
                         'promocion_aplicada' => $item->options->promocion ?? null,
                     ]);
+
+                    // Descontar stock en producto para deudas también
+                    $producto = Producto::find($item->id);
+                    if ($producto) {
+                        $producto->sku = max(0, $producto->sku - $item->qty);
+                        $producto->save();
+                    }
                 }
 
                 $cart->destroy();
@@ -231,6 +257,13 @@ class ProductList extends Component
                     'id_venta' => $venta->id,
                     'promocion_aplicada' => $item->options->promocion ?? null
                 ]);
+
+                // Descontar stock al vender
+                $producto = Producto::find($item->id);
+                if ($producto) {
+                    $producto->sku = max(0, $producto->sku - $item->qty);
+                    $producto->save();
+                }
             }
 
             $cart->destroy();
@@ -249,7 +282,6 @@ class ProductList extends Component
             ];
         }
     }
-
 
     private function calcularTotal()
     {
@@ -325,6 +357,4 @@ class ProductList extends Component
     {
         return $this->calcularTotal();
     }
-
-
 }

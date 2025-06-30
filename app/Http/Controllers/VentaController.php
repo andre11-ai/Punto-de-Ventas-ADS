@@ -60,6 +60,11 @@ class VentaController extends Controller
                         'cantidad' => $item->qty,
                         'promocion_aplicada' => $item->options->promocion ?? null,
                     ]);
+                     $producto = Producto::find($item->id);
+            if ($producto) {
+                $producto->sku = max(0, $producto->sku - $item->qty);
+                $producto->save();
+            }
                 }
 
                 $cart->destroy();
@@ -91,6 +96,11 @@ class VentaController extends Controller
                     'id_venta' => $venta->id,
                     'promocion_aplicada' => $item->options->promocion ?? null
                 ]);
+                        $producto = Producto::find($item->id);
+        if ($producto) {
+            $producto->sku = max(0, $producto->sku - $item->qty);
+            $producto->save();
+        }
             }
 
             $cart->destroy();
@@ -241,24 +251,23 @@ class VentaController extends Controller
     }
 
 
-    public function listVentas()
-    {
-        $ventas = Venta::select('id', 'total', 'created_at', 'tipo')
-            ->orderByDesc('id')
-            ->get()
-            ->map(function ($venta) {
-                return [
-                    'id' => $venta->id,
-                    'total' => '$' . number_format($venta->total, 2),
-                    'created_at' => $venta->created_at->format('Y-m-d H:i:s'),
-                    'tipo' => $venta->tipo === 'abono'
-                        ? '<span class="badge bg-warning">Abono</span>'
-                        : '<span class="badge bg-success">Venta</span>',
-                ];
-            });
+public function listVentas()
+{
+    $ventas = Venta::withCount('devoluciones') // <-- AGREGADO
+        ->orderByDesc('id')
+        ->get()
+        ->map(function ($venta) {
+            return [
+                'id' => $venta->id,
+                'total' => '$' . number_format($venta->total, 2),
+                'created_at' => $venta->created_at->format('Y-m-d H:i:s'),
+                'tipo' => $venta->tipo,
+                'tiene_devolucion' => $venta->devoluciones_count > 0, // AHORA SÍ FUNCIONA
+            ];
+        });
 
-        return response()->json(['data' => $ventas]);
-    }
+    return response()->json(['data' => $ventas]);
+}
 
 
 
@@ -300,47 +309,58 @@ class VentaController extends Controller
 
 
     public function mostrarTicket($id)
-    {
-        $venta = Venta::with('user', 'detalles.producto')->findOrFail($id);
-        $productos = $venta->detalles->map(function ($detalle) {
-            return (object)[
-                'cantidad' => $detalle->cantidad,
-                'producto' => $detalle->producto->producto ?? 'Producto eliminado',
-                'precio'   => number_format($detalle->precio, 2, '.', ''),
-            ];
-        });
+{
+    $venta = Venta::with('user', 'detalles.producto')->findOrFail($id);
+    $productos = $venta->detalles->map(function ($detalle) {
+        return (object)[
+            'cantidad' => $detalle->cantidad,
+            'producto' => $detalle->producto->producto ?? 'Producto eliminado',
+            'precio'   => number_format($detalle->precio, 2, '.', ''),
+        ];
+    });
 
-        $company = \App\Models\Compania::first();
-        $total_productos = $venta->detalles->sum('cantidad');
-        $formatter = new \Luecano\NumeroALetras\NumeroALetras();
-        $total_letras = strtoupper($formatter->toMoney(floatval($venta->total), 2, 'PESOS', 'CENTAVOS'));
-        $pagoRecibido = $venta->pago_recibido ?? 0;
-        $cambio = ($venta->metodo_pago === 'efectivo' && $pagoRecibido > $venta->total)
-            ? round($pagoRecibido - $venta->total, 2)
-            : 0;
-        $subtotalOriginal = $venta->detalles->sum(function ($detalle) {
-            return $detalle->precio * $detalle->cantidad;
-        });
-        $ahorro = $subtotalOriginal - floatval($venta->total);
+    $company = \App\Models\Compania::first();
+    $total_productos = $venta->detalles->sum('cantidad');
+    $formatter = new \Luecano\NumeroALetras\NumeroALetras();
 
-        $logoPath = public_path('storage/img/Logo-Colo.png');
+    // --- CORRECCIÓN AQUÍ ---
+    $total = floatval($venta->total); // Puede ser negativo
+    $es_negativo = $total < 0;
+    $total_abs = abs($total);
 
-        $data = compact(
-            'venta',
-            'productos',
-            'company',
-            'total_productos',
-            'total_letras',
-            'cambio',
-            'ahorro',
-            'pagoRecibido',
-            'logoPath'
-        );
-
-        return \Pdf::loadView('venta.ticket', $data)
-            ->setPaper([0, 0, 250, 700], 'portrait')
-            ->setWarnings(false)
-            ->stream("ticket_abono_{$venta->id}.pdf");
+    $total_letras = strtoupper($formatter->toMoney($total_abs, 2, 'PESOS', 'CENTAVOS'));
+    if ($es_negativo) {
+        $total_letras = 'MENOS ' . $total_letras;
     }
+    // --- FIN CORRECCIÓN ---
+
+    $pagoRecibido = $venta->pago_recibido ?? 0;
+    $cambio = ($venta->metodo_pago === 'efectivo' && $pagoRecibido > $venta->total)
+        ? round($pagoRecibido - $venta->total, 2)
+        : 0;
+    $subtotalOriginal = $venta->detalles->sum(function ($detalle) {
+        return $detalle->precio * $detalle->cantidad;
+    });
+    $ahorro = $subtotalOriginal - floatval($venta->total);
+
+    $logoPath = public_path('storage/img/Logo-Colo.png');
+
+    $data = compact(
+        'venta',
+        'productos',
+        'company',
+        'total_productos',
+        'total_letras',
+        'cambio',
+        'ahorro',
+        'pagoRecibido',
+        'logoPath'
+    );
+
+    return \Pdf::loadView('venta.ticket', $data)
+        ->setPaper([0, 0, 250, 700], 'portrait')
+        ->setWarnings(false)
+        ->stream("ticket_abono_{$venta->id}.pdf");
+}
 
 }

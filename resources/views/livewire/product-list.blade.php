@@ -20,65 +20,78 @@
                     </div>
                 @else
                     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
-                        @foreach ($products as $product)
-                            <div class="col">
-                                <div class="card h-100 border-0 shadow-sm product-card">
-                                    <div class="card-body text-center p-2">
-                                        @if($product->foto)
-                                            <img src="{{ asset('storage/'.$product->foto) }}"
-                                                 class="img-fluid mb-2 rounded"
-                                                 style="max-height: 100px; object-fit: contain;">
-                                        @else
-                                            <img src="{{ asset('img/default.png') }}"
-                                                 class="img-fluid mb-2 rounded"
-                                                 style="max-height: 100px; object-fit: contain;">
-                                        @endif
+@foreach ($products as $product)
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm product-card
+            {{ $product->sku <= 0 ? 'bg-danger bg-opacity-10 border-danger' : '' }}">
+            <div class="card-body text-center p-2">
+                @if($product->foto)
+                    <img src="{{ asset('storage/'.$product->foto) }}"
+                         class="img-fluid mb-2 rounded"
+                         style="max-height: 100px; object-fit: contain;">
+                @else
+                    <img src="{{ asset('img/default.png') }}"
+                         class="img-fluid mb-2 rounded"
+                         style="max-height: 100px; object-fit: contain;">
+                @endif
 
-                                        <div class="d-flex justify-content-center align-items-center mb-2">
-                                            <button class="btn btn-outline-secondary btn-sm py-0 px-2"
-                                                    wire:click="decreaseQuantity({{ $product->id }})"
-                                                    type="button">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <input type="text" readonly
-                                                   class="form-control form-control-sm text-center mx-1"
-                                                   style="max-width: 40px;"
-                                                   value="{{ $quantitySelector[$product->id] ?? 1 }}">
-                                            <button class="btn btn-outline-secondary btn-sm py-0 px-2"
-                                                    wire:click="increaseQuantity({{ $product->id }})"
-                                                    type="button">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
+<div class="d-flex justify-content-center align-items-center mb-2">
+    <button class="btn btn-outline-secondary btn-sm py-0 px-2"
+            wire:click="decreaseQuantity({{ $product->id }})"
+            type="button"
+            {{ $product->sku <= 0 ? 'disabled' : '' }}>
+        <i class="fas fa-minus"></i>
+    </button>
+    <input type="number" readonly
+           class="form-control form-control-sm text-center mx-1"
+           style="max-width: 40px;"
+           min="1"
+           max="{{ $product->sku }}"
+           value="{{ $quantitySelector[$product->id] ?? 1 }}">
+    <button class="btn btn-outline-secondary btn-sm py-0 px-2"
+            wire:click="increaseQuantity({{ $product->id }})"
+            type="button"
+            {{ $product->sku <= 0 || ($quantitySelector[$product->id] ?? 1) >= $product->sku ? 'disabled' : '' }}>
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
 
-                                        <button wire:click="addToCart({{ $product->id }})"
-                                                wire:loading.attr="disabled"
-                                                wire:target="addToCart"
-                                                class="btn btn-primary btn-sm w-100 mb-2">
-                                            <i class="fas fa-cart-plus"></i> Agregar
-                                        </button>
+<button wire:click="addToCart({{ $product->id }})"
+        wire:loading.attr="disabled"
+        wire:target="addToCart"
+        class="btn {{ $product->sku <= 0 ? 'btn-danger' : 'btn-primary' }} btn-sm w-100 mb-2"
+        {{ $product->sku <= 0 ? 'disabled' : '' }}>
+    <i class="fas fa-cart-plus"></i>
+    {{ $product->sku <= 0 ? 'Agotado' : 'Agregar' }}
+</button>
 
-                                        <h6 class="card-title mb-1 text-truncate">
-                                            {{ $product->producto }}
-                                        </h6>
+                <h6 class="card-title mb-1 text-truncate">
+                    {{ $product->producto }}
+                </h6>
 
-                                        <p class="mb-1 text-muted small">
-                                            <small>{{ $product->codigo_barras }}</small>
-                                        </p>
+                <p class="mb-1 text-muted small">
+                    <small>{{ $product->codigo_barras }}</small>
+                </p>
 
-                                        <p class="mb-0 fw-bold text-primary">
-                                            ${{ number_format($product->precio_venta, 2) }}
-                                        </p>
-
-                                        @if($product->promocion)
-                                            <span class="badge bg-warning text-dark mt-1">
-                                                {{ $product->promocion->tipo }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                <p class="mb-0 fw-bold {{ $product->sku <= 0 ? 'text-danger' : 'text-primary' }}">
+                    ${{ number_format($product->precio_venta, 2) }}
+                </p>
+                <p class="mb-0">
+                    @if($product->sku > 0)
+                        <span class="badge bg-success">Stock: {{ $product->sku }}</span>
+                    @else
+                        <span class="badge bg-danger">AGOTADO</span>
+                    @endif
+                </p>
+                @if($product->promocion)
+                    <span class="badge bg-warning text-dark mt-1">
+                        {{ $product->promocion->tipo }}
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+@endforeach
                     </div>
 
                     <div class="mt-3 d-flex justify-content-center">
@@ -112,6 +125,11 @@
                                 <tr>
                                     <th style="width: 40%">Producto</th>
                                     <th class="text-end">Precio</th>
+                                    @if($product->sku > 0)
+    <span class="badge bg-success mb-1">Stock: {{ $product->sku }}</span>
+@else
+    <span class="badge bg-danger mb-1">AGOTADO</span>
+@endif
                                     <th class="text-center">Cant.</th>
                                     <th class="text-center">Acción</th>
                                 </tr>

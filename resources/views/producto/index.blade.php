@@ -246,6 +246,8 @@
                                     <th>Precio Venta</th>
                                     <th>Categoría</th>
                                     <th>Proveedor</th>
+                                                <th>SKU</th>
+            <th>¿Se puede devolver?</th>
                                     <th>Imagen</th>
                                     <th>Código Barras</th>
                                     <th>Promoción</th>
@@ -402,6 +404,14 @@
                                                 <td class="align-middle">{{ $producto->producto }}</td>
                                                 <td class="align-middle">{{ $producto->categoria->nombre ?? '-' }}</td>
                                                 <td class="align-middle">{{ $producto->proveedor->nombre ?? '-' }}</td>
+                                                            <td>{{ $producto->sku }}</td>
+                                                            <td>
+                                                                @if($producto->devolucion)
+                                                                    <span class="badge bg-success">Sí</span>
+                                                                @else
+                                                                    <span class="badge bg-danger">No</span>
+                                                                @endif
+                                                            </td>
                                                 <td class="align-middle">
                                                     @php
                                                         $badgeClass = '';
@@ -514,6 +524,21 @@
                         data: 'proveedor',
                         render: function(data) {
                             return data ? data.nombre : '-';
+                        }
+                    },
+                    {
+                        data: 'sku',
+                        render: function(data) {
+                            return data !== null ? data : '-';
+                        }
+                    },
+                    {
+                        data: 'devolucion',
+                        render: function(data) {
+                            if (data == 1 || data === true) {
+                                return '<span class="badge bg-success">Sí</span>';
+                            }
+                            return '<span class="badge bg-danger">No</span>';
                         }
                     },
                     {
