@@ -216,7 +216,7 @@
                         <span id="card_title">
                             <i class="fas fa-boxes me-2"></i>{{ __('Productos') }}
                         </span>
-@if(in_array(auth()->user()->rol, ['Admin', 'Super-Admin']))
+                        @if(in_array(auth()->user()->rol, ['Admin', 'Super-Admin']))
 
                         <div class="float-right d-flex gap-2">
                             <button class="btn btn-warning btn-sm" id="btnPromociones" data-bs-toggle="modal" data-bs-target="#promocionModal">
@@ -573,6 +573,7 @@
                         data: 'promocion',
                         render: function(data) {
                             if (data && data.tipo) {
+
                                 const fechaFin = new Date(data.fecha_fin);
                                 const hoy = new Date();
                                 const estaActiva = fechaFin >= hoy;
