@@ -253,7 +253,7 @@ class VentaController extends Controller
 
 public function listVentas()
 {
-    $ventas = Venta::withCount('devoluciones') // <-- AGREGADO
+    $ventas = Venta::withCount('devoluciones')
         ->orderByDesc('id')
         ->get()
         ->map(function ($venta) {
@@ -323,8 +323,7 @@ public function listVentas()
     $total_productos = $venta->detalles->sum('cantidad');
     $formatter = new \Luecano\NumeroALetras\NumeroALetras();
 
-    // --- CORRECCIÓN AQUÍ ---
-    $total = floatval($venta->total); // Puede ser negativo
+    $total = floatval($venta->total);
     $es_negativo = $total < 0;
     $total_abs = abs($total);
 
@@ -332,7 +331,6 @@ public function listVentas()
     if ($es_negativo) {
         $total_letras = 'MENOS ' . $total_letras;
     }
-    // --- FIN CORRECCIÓN ---
 
     $pagoRecibido = $venta->pago_recibido ?? 0;
     $cambio = ($venta->metodo_pago === 'efectivo' && $pagoRecibido > $venta->total)

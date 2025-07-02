@@ -290,81 +290,95 @@ return [
     */
 
     'menu' => [
-        [
-            'type'         => 'fullscreen-widget',
-            'topnav_right' => true,
-        ],
-
-        // Sidebar items:
-
-        [
-            'text' => 'blog',
-            'url'  => 'admin/blog',
-            'can'  => 'manage-blog',
-        ],
-        [
-            'text' => 'Tablero',
-            'url'  => 'dashboard',
-            'icon'        => 'fas fa-fw fa-chart-pie'
-        ],
-        [
-            'text' => 'Compania',
-            'url'  => '/compania',
-        ],
-        [
-            'text'        => 'Administración',
-            'url'         => '#',
-            'icon'        => 'fas fa-fw fa-list',
-            'submenu' => [
-                [
-                    'text' => 'Usuarios',
-                    'url'  => '/usuarios',
-                ],
-            ],
-        ],
-        [
-            'text' => 'Clientes Deudores',
-            'url'  => 'clientes',
-            'icon'        => 'fas fa-fw fa-users'
-        ],
-        [
-            'text'        => 'Artículos',
-            'url'         => '#',
-            'icon'        => 'fas fa-fw fa-list',
-            'submenu' => [
-                         [
-                    'text' => 'Proveedores',
-                    'url'  => 'proveedores',
-                ],
-                [
-                    'text' => 'Categorias',
-                    'url'  => 'categorias',
-                ],
-                [
-                    'text' => 'Productos',
-                    'url'  => 'productos',
-                ],
-
-            ],
-        ],
-        [
-            'text'        => 'Ventas',
-            'url'         => 'admin/pages',
-            'icon'        => 'fas fa-fw fa-shopping-cart',
-            'submenu' => [
-                [
-                    'text' => 'Nueva venta',
-                    'url'  => '/venta',
-                ],
-                [
-                    'text' => 'Listar ventas',
-                    'url'  => '/venta/show',
-                    'icon' => 'fas fa-truck',
-                ],
-
-            ],
-        ]
+    [
+        'type'         => 'fullscreen-widget',
+        'topnav_right' => true,
     ],
+    [
+        'text' => 'Tablero',
+        'url'  => 'dashboard',
+        'icon' => 'fas fa-fw fa-chart-pie'
+    ],
+    [
+        'text' => 'Compania',
+        'url'  => '/compania',
+        'can'  => 'menu-compania',
+    ],
+    [
+        'text'    => 'Administración',
+        'icon'    => 'fas fa-fw fa-list',
+        'can'     => 'menu-admin',
+        'submenu' => [
+            [
+                'text' => 'Usuarios',
+                'url'  => '/usuarios',
+                'can'  => 'menu-usuarios',
+            ],
+        ],
+    ],
+    [
+        'text' => 'Clientes Deudores',
+        'url'  => 'clientes',
+        'icon' => 'fas fa-fw fa-users',
+        'can'  => 'menu-clientes',
+    ],
+    [
+        'text'    => 'Artículos',
+        'icon'    => 'fas fa-fw fa-list',
+        'submenu' => [
+            [
+                'text' => 'Proveedores',
+                'url'  => 'proveedores',
+                'can'  => 'menu-proveedores',
+            ],
+            [
+                'text' => 'Categorias',
+                'url'  => 'categorias',
+                'can'  => 'menu-categorias',
+            ],
+            [
+                'text' => 'Productos',
+                'url'  => 'productos',
+                'can'  => 'menu-productos',
+            ],
+        ],
+    ],
+    [
+        'text'    => 'Ventas',
+        'icon'    => 'fas fa-fw fa-shopping-cart',
+        'can'     => 'menu-ventas',
+        'submenu' => [
+            [
+                'text' => 'Nueva venta',
+                'url'  => '/venta',
+                'can'  => 'menu-ventas',
+            ],
+            [
+                'text' => 'Listar ventas',
+                'url'  => '/venta/show',
+                'icon' => 'fas fa-truck',
+                'can'  => 'menu-ventas',
+            ],
+        ],
+    ],
+    [
+        'text'    => 'Facturación',
+        'icon'    => 'fas fa-file-invoice-dollar',
+        'can'     => 'menu-facturacion',
+        'submenu' => [
+            [
+                'text' => 'Facturacion',
+                'url'  => '/facturas',
+                'icon' => 'fas fa-list',
+            ],
+            [
+                'text' => 'Lista Factura',
+                'url'  => '/facturas/show',
+                'icon' => 'fas fa-search',
+            ],
+        ],
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------

@@ -216,6 +216,7 @@
                         <span id="card_title">
                             <i class="fas fa-boxes me-2"></i>{{ __('Productos') }}
                         </span>
+@if(in_array(auth()->user()->rol, ['Admin', 'Super-Admin']))
 
                         <div class="float-right d-flex gap-2">
                             <button class="btn btn-warning btn-sm" id="btnPromociones" data-bs-toggle="modal" data-bs-target="#promocionModal">
@@ -225,6 +226,8 @@
                                 <i class="fas fa-plus-circle me-1"></i> {{ __('Nuevo Producto') }}
                             </a>
                         </div>
+                        @endif
+
                     </div>
                 </div>
                 <div class="card-body">
@@ -246,8 +249,8 @@
                                     <th>Precio Venta</th>
                                     <th>Categoría</th>
                                     <th>Proveedor</th>
-                                                <th>SKU</th>
-            <th>¿Se puede devolver?</th>
+                                    <th>SKU</th>
+                                    <th>¿Se puede devolver?</th>
                                     <th>Imagen</th>
                                     <th>Código Barras</th>
                                     <th>Promoción</th>
@@ -493,6 +496,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
+    {{-- Pasa el rol PHP a JS antes de tu script principal --}}
+<script>
+    const userRol = "{{ auth()->user()->rol }}";
+</script>
     <script>
         $(document).ready(function() {
             $.ajaxSetup({
@@ -580,17 +587,22 @@
                         }
                     },
                     {
+
                         data: null,
                         render: function(row) {
-                            return `
-                                <a href="/productos/${row.id}/edit" class="btn btn-sm btn-primary">Editar</a>
-                                <button class="btn btn-sm btn-danger btn-delete" data-id="${row.id}">Eliminar</button>
-                                <button class="btn btn-sm btn-info btn-editar-promocion"
-                                        data-id="${row.id}"
-                                        data-tipo="${row.promocion ? row.promocion.tipo : ''}">
-                                    <i class="fas fa-tag"></i> Promo
-                                </button>
-                            `;
+                            let actions = '';
+                            if (userRol === 'Admin' || userRol === 'Super-Admin') {
+                                actions += `
+                                    <a href="/productos/${row.id}/edit" class="btn btn-sm btn-primary">Editar</a>
+                                    <button class="btn btn-sm btn-danger btn-delete" data-id="${row.id}">Eliminar</button>
+                                    <button class="btn btn-sm btn-info btn-editar-promocion"
+                                            data-id="${row.id}"
+                                            data-tipo="${row.promocion ? row.promocion.tipo : ''}">
+                                        <i class="fas fa-tag"></i> Promo
+                                    </button>
+                                `;
+                            }
+                            return actions;
                         }
                     }
                 ],

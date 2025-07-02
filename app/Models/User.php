@@ -26,8 +26,8 @@ class User extends Authenticatable{
         'name',
         'email',
         'password',
-        'rol', // nuevo campo rol
-        'turno', // nuevo campo turno
+        'rol',
+        'turno',
     ];
 
     /**
