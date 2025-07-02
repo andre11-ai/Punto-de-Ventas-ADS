@@ -69,6 +69,13 @@
             margin-bottom: 1rem;
             opacity: 0.5;
         }
+                .shortcut-hint {
+         opacity: 0.9;
+          font-size: 0.8em;
+          margin-left: 0.5em;
+          color: #bbb;
+        }
+
     </style>
 @endsection
 
@@ -83,9 +90,10 @@
                         </span>
 
                         <div class="float-right">
-                            <a href="{{ route('proveedores.create') }}" class="btn btn-success btn-sm">
+                            <a id="new-provider-button" href="{{ route('proveedores.create') }}" class="btn btn-success btn-sm">
                                 <i class="fas fa-plus-circle me-1"></i>{{ __('Nuevo Proveedor') }}
                             </a>
+                            <span class="shortcut-hint">(F1)</span>
                         </div>
                     </div>
                 </div>
@@ -110,7 +118,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($proveedores as $proveedor)
-                                    <tr>
+                                    <tr tabindex="0" class="provider-row">
                                         <td>{{ $proveedor->id }}</td>
                                         <td>
                                             <span class="fw-semibold">{{ $proveedor->nombre }}</span>
@@ -120,7 +128,7 @@
                                         </td>
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <a class="btn btn-sm btn-primary btn-action" href="{{ route('proveedores.edit', $proveedor->id) }}">
+                                                <a class="btn btn-sm btn-primary btn-action btn-edit" href="{{ route('proveedores.edit', $proveedor->id) }}">
                                                     <i class="fas fa-edit me-1"></i>Editar
                                                 </a>
 
@@ -153,10 +161,101 @@
             </div>
         </div>
     </div>
+    <!-- Botón flotante de atajos -->
+<button id="shortcuts-button" title="Ver atajos" style="
+    position:fixed; bottom:20px; right:20px;
+    background-color:purple; color:white; border:none; border-radius:50%;
+    width:48px; height:48px; font-size:1.2em; cursor:pointer; z-index:1000;">
+  F12
+</button>
+
+<!-- Modal de atajos -->
+<div id="shortcuts-modal" class="modal" style="
+    display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1001;">
+  <div class="modal-content" style="
+      background:white; padding:1.5em; border-radius:8px; max-width:400px; margin:auto;">
+    <h2>Atajos de Teclado</h2>
+    <ul>
+      <li><strong>F1</strong> – Nuevo Proveedor</li>
+      <li><strong>F2</strong> – Buscar Proveedores</li>
+      <li><strong>F3</strong> – Página Anterior</li>
+      <li><strong>F4</strong> – Página Siguiente</li>
+      <li><strong>F5</strong> – Selector de filas</li>
+      <li><strong>F6</strong> – Editar Proveedor Seleccionado</li>
+      <li><strong>F7</strong> – Eliminar Proveedor Seleccionado</li>
+      <li><strong>F12</strong> – Mostrar/Cerrar ayuda de atajos</li>
+    </ul>
+    <button class="close-modal" style="margin-top:1em;">Cerrar</button>
+  </div>
+</div>
+
 @stop
 
 @section('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+  // Resaltar fila seleccionada
+  $('#tblproveedores').on('focus', 'tbody tr.provider-row', function() {
+    $(this).addClass('selected').siblings().removeClass('selected');
+  });
+
+  // Atajos de teclado F1–F7 y F12
+  document.addEventListener('keydown', function(e) {
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    switch (e.key) {
+      case 'F1': // Nuevo Proveedor
+        e.preventDefault();
+        document.getElementById('new-provider-button').click();
+        break;
+      case 'F2': // Buscar
+        e.preventDefault();
+        document.getElementById('filter-input').focus();
+        break;
+      case 'F3': // Página Anterior
+        e.preventDefault();
+        document.getElementById('prev-page-button').click();
+        break;
+      case 'F4': // Página Siguiente
+        e.preventDefault();
+        document.getElementById('next-page-button').click();
+        break;
+      case 'F5': // Selector de filas
+        e.preventDefault();
+        document.getElementById('length-select').focus();
+        break;
+      case 'F6': // Editar seleccionado
+        e.preventDefault();
+        const selEdit = document.querySelector('#tblproveedores tbody tr.selected');
+        if (selEdit) selEdit.querySelector('.btn-edit').click();
+        break;
+      case 'F7': // Eliminar seleccionado
+        e.preventDefault();
+        const selDel = document.querySelector('#tblproveedores tbody tr.selected');
+        if (selDel) selDel.querySelector('.btn-delete').click();
+        break;
+      case 'F12': // Modal de ayuda
+        e.preventDefault();
+        const modal = document.getElementById('shortcuts-modal');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+        break;
+    }
+  });
+
+  // Toggle modal con el botón morado y cerrar
+  document.getElementById('shortcuts-button')
+    .addEventListener('click', () => {
+      const modal = document.getElementById('shortcuts-modal');
+      modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    });
+  document.querySelector('#shortcuts-modal .close-modal')
+    .addEventListener('click', () => {
+      document.getElementById('shortcuts-modal').style.display = 'none';
+    });
+</script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="DataTables/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -174,6 +273,22 @@
                 dom: '<"top"f>rt<"bottom"lip><"clear">',
                 initComplete: function() {
                     $('.dataTables_filter input').addClass('form-control form-control-sm');
+                    // 1) Campo buscar (F2)
+  $('#tblproveedores_filter input')
+     .addClass('form-control form-control-sm')
+     .attr('id', 'filter-input')
+     .after('<span class="shortcut-hint">(F2)</span>');
+   // 2) Botones de paginación (F3 / F4)
+   $('#tblproveedores_paginate .previous')
+     .attr('id', 'prev-page-button')
+     .after('<span class="shortcut-hint">(F3)</span>');
+   $('#tblproveedores_paginate .next')
+     .attr('id', 'next-page-button')
+     .after('<span class="shortcut-hint">(F4)</span>');
+   // 3) Selector de longitud (F5)
+   $('#tblproveedores_length select')
+     .attr('id', 'length-select')
+     .after('<span class="shortcut-hint">(F5)</span>');
                 }
             });
 

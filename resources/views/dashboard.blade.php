@@ -86,8 +86,9 @@
                         <h3 class="card-title">Ventas por Día (últimos 7 días)</h3>
                         <div class="card-tools">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                                <button id="export-dia-button" type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
                                     <i class="fas fa-wrench"></i>
+                                 <span class="shortcut-hint">(F1)</span>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     <a href="{{ route('export.ventas.dia', ['formato'=>'excel']) }}" class="dropdown-item">Exportar a Excel</a>
@@ -111,9 +112,10 @@
                         <h3 class="card-title">Ventas por Semana</h3>
                         <div class="card-tools">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                                <button id="export-semana-button" type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
                                     <i class="fas fa-wrench"></i>
                                 </button>
+                                <span class="shortcut-hint">(F2)</span>
                                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     <a href="{{ route('export.ventas.semana', ['formato'=>'excel']) }}" class="dropdown-item">Exportar a Excel</a>
                                     <a href="{{ route('export.ventas.semana', ['formato'=>'pdf']) }}" class="dropdown-item">Exportar a PDF</a>
@@ -145,9 +147,10 @@
                         <h3 class="card-title">Ventas por Mes</h3>
                         <div class="card-tools">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                                 <button id="export-mes-button" type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
                                     <i class="fas fa-wrench"></i>
                                 </button>
+                                 <span class="shortcut-hint">(F3)</span>
                                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     <a href="{{ route('export.ventas.mes', ['formato'=>'excel']) }}" class="dropdown-item">Exportar a Excel</a>
                                     <a href="{{ route('export.ventas.mes', ['formato'=>'pdf']) }}" class="dropdown-item">Exportar a PDF</a>
@@ -181,9 +184,10 @@
                     <h3 class="card-title">Productos más vendidos</h3>
                     <div class="card-tools">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                            <button id="export-masvendidos-button" type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
                                 <i class="fas fa-wrench"></i>
                             </button>
+                             <span class="shortcut-hint">(F4)</span>
                             <div class="dropdown-menu dropdown-menu-right" role="menu">
                                 <a href="{{ route('export.productos.vendidos', ['formato'=>'excel']) }}" class="dropdown-item">Exportar a Excel</a>
                                 <a href="{{ route('export.productos.vendidos', ['formato'=>'pdf']) }}" class="dropdown-item">Exportar a PDF</a>
@@ -237,8 +241,9 @@
                 <div class="card-header bg-gradient-info">
                     <h3 class="card-title">Actividad Reciente</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <button id="collapse-actividad-button" type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
+                            <span class="shortcut-hint">(F5)</span>
                         </button>
                     </div>
                 </div>
@@ -274,6 +279,33 @@
             </div>
         </div>
     </div>
+    <!-- Botón morado flotante para mostrar atajos -->
+<button id="shortcuts-button" title="Ver atajos" style="
+    position:fixed; bottom:20px; right:20px;
+    background-color:purple; color:white; border:none; border-radius:50%;
+    width:48px; height:48px; font-size:1.2em; cursor:pointer; z-index:1000;">
+  F12
+</button>
+
+<!-- Modal oculto con la lista de atajos -->
+<div id="shortcuts-modal" class="modal" style="
+    display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1001;">
+  <div class="modal-content" style="
+      background:white; padding:1.5em; border-radius:8px; max-width:400px; margin:auto;">
+    <h2>Atajos de Teclado</h2>
+    <ul>
+      <li><strong>F1</strong> – Exportar Ventas por Día</li>
+      <li><strong>F2</strong> – Exportar Ventas por Semana</li>
+      <li><strong>F3</strong> – Exportar Ventas por Mes</li>
+      <li><strong>F4</strong> – Exportar Productos más Vendidos</li>
+      <li><strong>F5</strong> – Alternar Actividad Reciente</li>
+      <li><strong>F12</strong> – Mostrar/Cerrar esta ayuda de atajos</li>
+    </ul>
+    <button class="close-modal" style="margin-top:1em;">Cerrar</button>
+  </div>
+</div>
+
 @stop
 
 @section('css')
@@ -311,10 +343,59 @@
         .bg-gradient-dark {
             background: linear-gradient(to right, #5a5c69, #3a3b45) !important;
         }
+        .shortcut-hint {
+         opacity: 0.9;
+          font-size: 0.8em;
+          margin-left: 0.5em;
+          color: #bbb;
+        }
     </style>
 @stop
 
 @section('js')
+<script>
+  document.addEventListener('keydown', function(e) {
+    // No interferir cuando el foco está en inputs
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    switch (e.key) {
+      case 'F1':
+        e.preventDefault();
+        document.getElementById('export-dia-button').click();
+        break;
+      case 'F2':
+        e.preventDefault();
+        document.getElementById('export-semana-button').click();
+        break;
+      case 'F3':
+        e.preventDefault();
+        document.getElementById('export-mes-button').click();
+        break;
+      case 'F4':
+        e.preventDefault();
+        document.getElementById('export-masvendidos-button').click();
+        break;
+      case 'F5':
+        e.preventDefault();
+        document.getElementById('collapse-actividad-button').click();
+        break;
+      case 'F12':
+         e.preventDefault();
+         const modal = document.getElementById('shortcuts-modal');
+         modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+  break;
+    }
+  });
+
+  // Mostrar/ocultar modal de atajos
+  const btn = document.getElementById('shortcuts-button');
+  const modal = document.getElementById('shortcuts-modal');
+  btn.addEventListener('click', () => modal.style.display = 'flex');
+  modal.querySelector('.close-modal')
+       .addEventListener('click', () => modal.style.display = 'none');
+</script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

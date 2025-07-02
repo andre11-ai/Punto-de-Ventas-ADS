@@ -54,12 +54,12 @@
 
     <div class="card-footer bg-light">
         <div class="d-flex justify-content-between">
-            <a href="{{ route('proveedores.index') }}" class="btn btn-danger">
-                <i class="fas fa-times-circle me-2"></i> Cancelar
+            <a id="cancel-provider-button" href="{{ route('proveedores.index') }}" class="btn btn-danger">
+                <i class="fas fa-times-circle me-2"></i> Cancelar (F8)
             </a>
-            <button type="submit" class="btn btn-primary">
+            <button id="save-provider-button" type="submit" class="btn btn-primary">
                 <i class="fas fa-save me-2"></i>
-                {{ isset($proveedor->id) ? 'Actualizar Proveedor' : 'Guardar Proveedor' }}
+                {{ isset($proveedor->id) ? 'Actualizar Proveedor (F9)' : 'Guardar Proveedor(F9)' }}
             </button>
         </div>
     </div>
@@ -119,10 +119,33 @@
     .input-group:hover .input-group-text {
         background-color: #e9f5ff;
     }
+                .shortcut-hint {
+         opacity: 0.9;
+          font-size: 0.8em;
+          margin-left: 0.5em;
+          color: #bbb;
+        }
 </style>
 @endpush
 
 @push('js')
+<script>
+  document.addEventListener('keydown', function(e) {
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    switch (e.key) {
+      case 'F8':
+        e.preventDefault();
+        document.getElementById('cancel-provider-button').click();
+        break;
+      case 'F9':
+        e.preventDefault();
+        document.getElementById('save-provider-button').click();
+        break;
+    }
+  });
+</script>
 <script>
     $(document).ready(function() {
         // Efecto hover en los inputs

@@ -204,6 +204,12 @@
             background-color: #f8f9fa;
             transform: translateX(5px);
         }
+        .shortcut-hint {
+  opacity: 0.9;
+  font-size: 0.8em;
+  margin-left: 0.5em;
+  color: #bbb;
+}
     </style>
 @endsection
 
@@ -216,14 +222,14 @@
                         <span id="card_title">
                             <i class="fas fa-boxes me-2"></i>{{ __('Productos') }}
                         </span>
-                        @if(in_array(auth()->user()->rol, ['Admin', 'Super-Admin']))
+@if(in_array(auth()->user()->rol, ['Admin', 'Super-Admin']))
 
                         <div class="float-right d-flex gap-2">
-                            <button class="btn btn-warning btn-sm" id="btnPromociones" data-bs-toggle="modal" data-bs-target="#promocionModal">
-                                <i class="fas fa-tag me-1"></i> Promociones
+                             <button id="btnPromociones" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#promocionModal">
+                                <i class="fas fa-tag me-1"></i> Promociones (F2)
                             </button>
-                            <a href="{{ route('productos.create') }}" class="btn btn-success btn-sm">
-                                <i class="fas fa-plus-circle me-1"></i> {{ __('Nuevo Producto') }}
+                            <a id="new-product-button" href="{{ route('productos.create') }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus-circle me-1"></i> {{ __('Nuevo Producto (F1)') }}
                             </a>
                         </div>
                         @endif
@@ -438,7 +444,7 @@
                                                     <span class="badge badge-activa">Activa</span>
                                                 </td>
                                                 <td class="align-middle">
-                                                    <button class="btn btn-sm btn-primary btn-action btn-editar-promocion"
+                                                     <button class="btn btn-sm btn-primary btn-action btn-edit"
                                                             data-id="{{ $producto->id }}"
                                                             data-tipo="{{ $producto->promocion->tipo }}">
                                                         <i class="fas fa-edit"></i>
@@ -487,6 +493,33 @@
                 </div>
         </div>
     </div>
+    <!-- Botón flotante de atajos -->
+<button id="shortcuts-button" title="Ver atajos" style="
+    position: fixed; bottom: 20px; right: 20px;
+    background-color: purple; color: white; border: none; border-radius: 50%;
+    width: 48px; height: 48px; font-size: 1.2em; cursor: pointer; z-index: 1000;">
+  F12
+</button>
+
+<!-- Modal de atajos -->
+<div id="shortcuts-modal" class="modal" style="
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1001;">
+  <div class="modal-content" style="
+      background: white; padding: 1.5em; border-radius: 8px; max-width: 400px; margin: auto;">
+    <h2>Atajos de Teclado</h2>
+    <ul>
+      <li><strong>F1</strong> – Nuevo Producto</li>
+      <li><strong>F2</strong> – Promociones</li>
+      <li><strong>F3</strong> – Selector de filas</li>
+      <li><strong>F4</strong> – Editar Producto Seleccionado</li>
+      <li><strong>F5</strong> – Eliminar Producto Seleccionado</li>
+      <li><strong>F6</strong> – Editar Promoción del Producto Seleccionado</li>
+      <li><strong>F12</strong> – Mostrar/Cerrar ayuda de atajos</li>
+    </ul>
+    <button class="close-modal" style="margin-top:1em;">Cerrar</button>
+  </div>
+</div>
 @stop
 
 @section('js')
@@ -495,7 +528,67 @@
     <script src="DataTables/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script>
+   document.addEventListener('keydown', function(e) {
+  // Evitar atajos si el usuario está en un input o textarea
+  if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
 
+  switch (e.key) {
+    case 'F1': // Nuevo Producto
+      e.preventDefault();
+      document.getElementById('new-product-button').click();
+      break;
+    case 'F2': // Promociones
+      e.preventDefault();
+      document.getElementById('btnPromociones').click();
+      break;
+    case 'F3': // Enfocar el selector de cantidad de elementos (length-select)
+      e.preventDefault();
+      document.getElementById('length-select').focus();
+      break;
+    case 'F4': // Editar producto seleccionado
+      e.preventDefault();
+      const selEdit = document.querySelector('#tblProducts tbody tr.selected');
+      if (selEdit) {
+        const btnEdit = selEdit.querySelector('.btn-edit');
+        if (btnEdit) btnEdit.click();
+      }
+      break;
+    case 'F5': // Eliminar producto seleccionado
+      e.preventDefault();
+      const selDel = document.querySelector('#tblProducts tbody tr.selected');
+      if (selDel) {
+        const btnDelete = selDel.querySelector('.btn-delete');
+        if (btnDelete) btnDelete.click();
+      }
+      break;
+    case 'F6': // Editar promoción del producto seleccionado
+      e.preventDefault();
+      const selPromo = document.querySelector('#tblProducts tbody tr.selected');
+      if (selPromo) {
+        const btnPromo = selPromo.querySelector('.btn-editar-promocion');
+        if (btnPromo) btnPromo.click();
+      }
+      break;
+    case 'F7': // Enfocar el input de búsqueda (filter-input)
+      e.preventDefault();
+      document.getElementById('filter-input').focus();
+      break;
+    case 'F12': // Mostrar/Cerrar modal de atajos
+      e.preventDefault();
+      const modal = document.getElementById('shortcuts-modal');
+      modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+      break;
+  }
+});
+document.getElementById('shortcuts-button').addEventListener('click', () => {
+  const modal = document.getElementById('shortcuts-modal');
+  modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+});
+document.querySelector('#shortcuts-modal .close-modal').addEventListener('click', () => {
+  document.getElementById('shortcuts-modal').style.display = 'none';
+});
+    </script>
     {{-- Pasa el rol PHP a JS antes de tu script principal --}}
 <script>
     const userRol = "{{ auth()->user()->rol }}";
@@ -509,6 +602,18 @@
             });
 
             const table = new DataTable('#tblProducts', {
+                initComplete: function() {
+  // Agregar el id "filter-input" al input de búsqueda y la pista "(F7)"
+  $('#tblProducts_filter input')
+    .addClass('form-control form-control-sm')
+    .attr('id', 'filter-input')
+    .after('<span class="shortcut-hint">(F7)</span>');
+
+  // Asignar id "length-select" al selector de cantidad y agregar pista "(F3)"
+  $('#tblProducts_length select')
+    .attr('id', 'length-select')
+    .after('<span class="shortcut-hint">(F3)</span>');
+},
                 responsive: true,
                 fixedHeader: true,
                 ajax: {
@@ -573,7 +678,6 @@
                         data: 'promocion',
                         render: function(data) {
                             if (data && data.tipo) {
-
                                 const fechaFin = new Date(data.fecha_fin);
                                 const hoy = new Date();
                                 const estaActiva = fechaFin >= hoy;
@@ -612,7 +716,9 @@
                 },
                 order: [[0, 'desc']]
             });
-
+            $('#tblProducts').on('focus', 'tbody tr', function() {
+  $(this).addClass('selected').siblings().removeClass('selected');
+});
             $('#btnPromociones').on('click', function() {
                 $('#promocionModal').modal('show');
             });

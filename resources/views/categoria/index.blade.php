@@ -143,11 +143,91 @@
             </div>
         </div>
     </div>
+    <!-- Botón flotante de atajos: F12 -->
+<button id="shortcuts-button" title="Ver atajos" style="
+    position: fixed; bottom: 20px; right: 20px;
+    background-color: purple; color: white; border: none; border-radius: 50%;
+    width: 48px; height: 48px; font-size: 1.2em; cursor: pointer; z-index: 1000;">
+  F12
+</button>
+
+<!-- Modal de atajos -->
+<div id="shortcuts-modal" class="modal" style="
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center; z-index: 1001;">
+  <div class="modal-content" style="
+      background: white; padding: 1.5em; border-radius: 8px; max-width: 400px; margin: auto;">
+    <h2>Atajos de Teclado</h2>
+    <ul>
+      <li><strong>F1</strong> – Nueva Categoría</li>
+      <li><strong>F3</strong> – Selector de cantidad</li>
+      <li><strong>F4</strong> – Editar categoría seleccionada</li>
+      <li><strong>F5</strong> – Eliminar categoría seleccionada</li>
+      <li><strong>F7</strong> – Buscar Categoria</li>
+      <li><strong>F12</strong> – Mostrar/Cerrar ayuda de atajos</li>
+    </ul>
+    <button class="close-modal" style="margin-top: 1em;">Cerrar</button>
+  </div>
+</div>
 @stop
 
 @section('js')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('keydown', function(e) {
+    // Evitar atajos si el usuario está en un input o textarea
+    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+    switch (e.key) {
+        case 'F1': // Nuevo Categoría
+            e.preventDefault();
+            // Suponemos que el botón de "Nueva Categoría" está en la cabecera y lo podemos acceder con un selector, por ejemplo:
+            document.querySelector('a[href*="/categorias/create"]').click();
+            break;
+        case 'F3': // Enfocar el selector de cantidad (length-select)
+            e.preventDefault();
+            document.getElementById('length-select').focus();
+            break;
+            case 'F4': // Editar categoría seleccionada
+                    e.preventDefault();
+                    const selEdit = document.querySelector('#tblcategorias tbody tr.selected');
+                    if (selEdit) {
+                        const btnEdit = selEdit.querySelector('.btn-edit');
+                        if (btnEdit) btnEdit.click();
+                    }
+                    break;
+                case 'F5': // Eliminar categoría seleccionada
+                    e.preventDefault();
+                    const selDel = document.querySelector('#tblcategorias tbody tr.selected');
+                    if (selDel) {
+                        const btnDelete = selDel.querySelector('.btn-delete');
+                        if (btnDelete) btnDelete.click();
+                    }
+        case 'F7': // Enfocar el cuadro de búsqueda (filter-input)
+            e.preventDefault();
+            document.getElementById('filter-input').focus();
+            break;
+        case 'F12': // Mostrar/Cerrar modal de atajos
+            e.preventDefault();
+            const modal = document.getElementById('shortcuts-modal');
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+            break;
+    }
+});
+    </script>
+    <script>
+  // Función para mostrar o cerrar el modal de atajos con F12 y el botón flotante
+  document.getElementById('shortcuts-button').addEventListener('click', () => {
+      const modal = document.getElementById('shortcuts-modal');
+      modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+  });
+
+  document.querySelector('#shortcuts-modal .close-modal').addEventListener('click', () => {
+      document.getElementById('shortcuts-modal').style.display = 'none';
+  });
+
+</script>
     <script src="DataTables/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -164,6 +244,14 @@
                 dom: '<"top"f>rt<"bottom"lip><"clear">',
                 initComplete: function() {
                     $('.dataTables_filter input').addClass('form-control form-control-sm');
+                     $('.dataTables_filter input')
+        .addClass('form-control form-control-sm')
+        .attr('id', 'filter-input')
+        .after('<span class="shortcut-hint">(F7)</span>');
+    // Agregar id "length-select" y pista de atajo (F3) al selector de cantidad
+    $('#tblcategorias_length select')
+        .attr('id', 'length-select')
+        .after('<span class="shortcut-hint">(F3)</span>');
                 }
             });
 

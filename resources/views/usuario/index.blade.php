@@ -89,6 +89,12 @@
             background-color: #fd7e14;
             color: white;
         }
+        .shortcut-hint {
+         opacity: 0.4;
+         font-size: 0.8em;
+         margin-left: 0.5em;
+         color: #444;
+        }
     </style>
 @endsection
 
@@ -102,9 +108,10 @@
             <i class="fas fa-user-friends me-2"></i>{{ __('Usuarios') }}
           </span>
           <div class="float-right">
-            <a href="{{ route('usuarios.create') }}" class="btn btn-success btn-sm">
+            <a id="new-user-button" href="{{ route('usuarios.create') }}" class="btn btn-success btn-sm">
               <i class="fas fa-plus-circle me-1"></i>{{ __('Nuevo Usuario') }}
             </a>
+            <span class="shortcut-hint">(F1)</span>
           </div>
         </div>
       </div>
@@ -132,7 +139,7 @@
             </thead>
             <tbody>
               @forelse ($usuarios as $usuario)
-                <tr>
+                <tr tabindex="0" class="user-row">
                   <td>{{ $usuario->id }}</td>
                   <td>{{ $usuario->name }}</td>
                   <td>{{ $usuario->email }}</td>
@@ -161,13 +168,13 @@
                   </td>
                   <td>
                     <div class="d-flex gap-2">
-                      <a href="{{ route('usuarios.edit', $usuario->id) }}" class="btn btn-sm btn-primary btn-action">
+                      <a href="{{ route('usuarios.edit', $usuario->id) }}" class="btn btn-sm btn-primary btn-action btn-edit">
                         <i class="fas fa-edit me-1"></i>Editar
                       </a>
                       <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST" class="form-eliminar">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger btn-action">
+                        <button type="submit" class="btn btn-sm btn-danger btn-action btn-delete">
                           <i class="fas fa-trash-alt me-1"></i>Eliminar
                         </button>
                       </form>
@@ -203,10 +210,114 @@
     </div>
   </div>
 </div>
+<!-- Botón flotante -->
+<button id="shortcuts-button" title="Ver atajos" style="
+    position:fixed; bottom:20px; right:20px;
+    background-color:purple; color:white; border:none; border-radius:50%;
+    width:48px; height:48px; font-size:1.2em; cursor:pointer; z-index:1000;">
+  F12
+</button>
+<!-- Modal -->
+<div id="shortcuts-modal" class="modal" style="
+    display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1001;">
+  <div class="modal-content" style="
+      background:white; padding:1.5em; border-radius:8px; max-width:400px; margin:auto;">
+    <h2>Atajos de Teclado</h2>
+    <ul>
+      <li><strong>F1</strong> – Nuevo Usuario</li>
+      <li><strong>F2</strong> – Buscar Usuarios</li>
+      <li><strong>F3</strong> – Página Anterior</li>
+      <li><strong>F4</strong> – Página Siguiente</li>
+      <li><strong>F5</strong> – Selector de filas</li>
+      <li><strong>F6</strong> – Editar Usuario Seleccionado</li>
+      <li><strong>F7</strong> – Eliminar Usuario Seleccionado</li>
+      <li><strong>F12</strong> – Mostrar/Cerrar ayuda de atajos</li>
+    </ul>
+    <button class="close-modal" style="margin-top:1em;">Cerrar</button>
+  </div>
+</div>
 @stop
 
 @section('js')
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+  // 1) Resaltar la fila “seleccionada” al enfocarla con Tab o clic
+  $('#tblUsers').on('focus', 'tbody tr.user-row', function() {
+    $(this).addClass('selected').siblings().removeClass('selected');
+  });
+
+  // 2) Atajos de teclado F1–F8
+  document.addEventListener('keydown', function(e) {
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    switch (e.key) {
+      // F1 – Nuevo Usuario
+      case 'F1':
+        e.preventDefault();
+        document.getElementById('new-user-button').click();
+        break;
+
+      // F2 – Enfocar campo de búsqueda
+      case 'F2':
+        e.preventDefault();
+        document.getElementById('filter-input').focus();
+        break;
+
+      // F3 – Página Anterior
+      case 'F3':
+        e.preventDefault();
+        document.getElementById('prev-page-button').click();
+        break;
+
+      // F4 – Página Siguiente
+      case 'F4':
+        e.preventDefault();
+        document.getElementById('next-page-button').click();
+        break;
+
+      // F5 – Selector de número de filas
+      case 'F5':
+        e.preventDefault();
+        document.getElementById('length-select').focus();
+        break;
+
+      // F6 – Editar Usuario Seleccionado
+      case 'F6':
+        e.preventDefault();
+        const selEdit = document.querySelector('#tblUsers tbody tr.selected');
+        if (selEdit) selEdit.querySelector('.btn-edit').click();
+        break;
+
+      // F7 – Eliminar Usuario Seleccionado
+      case 'F7':
+        e.preventDefault();
+        const selDel = document.querySelector('#tblUsers tbody tr.selected');
+        if (selDel) selDel.querySelector('.btn-delete').click();
+        break;
+
+      // F8 – Mostrar/Cerrar modal de atajos
+      case 'F12':
+        e.preventDefault();
+        const modal = document.getElementById('shortcuts-modal');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+        break;
+    }
+  });
+
+  // 3) Toggle de modal al hacer click en el botón morado
+  document.getElementById('shortcuts-button')
+    .addEventListener('click', () => {
+      const modal = document.getElementById('shortcuts-modal');
+      modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    });
+  document.querySelector('#shortcuts-modal .close-modal')
+    .addEventListener('click', () => {
+      document.getElementById('shortcuts-modal').style.display = 'none';
+    });
+</script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="DataTables/datatables.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -224,6 +335,18 @@
         dom: '<"top"f>rt<"bottom"lip><"clear">',
         initComplete: function() {
           $('.dataTables_filter input').addClass('form-control form-control-sm');
+          $('#tblUsers_filter input')
+  .attr('id', 'filter-input')
+  .after('<span class="shortcut-hint">(F2)</span>');
+$('#tblUsers_paginate .previous')
+  .attr('id', 'prev-page-button')
+  .after('<span class="shortcut-hint">(F3)</span>');
+$('#tblUsers_paginate .next')
+  .attr('id', 'next-page-button')
+  .after('<span class="shortcut-hint">(F4)</span>');
+  $('#tblUsers_length select')
+  .attr('id', 'length-select')
+  .after('<span class="shortcut-hint">(F5)</span>');
         }
       });
 

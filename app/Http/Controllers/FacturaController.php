@@ -33,45 +33,40 @@ class FacturaController extends Controller
         return view('factura.create', compact('venta'));
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'venta_id' => 'required|exists:ventas,id',
-            'rfc' => 'required',
-            'razon_social' => 'required',
-            'uso_cfdi' => 'required'
-        ]);
+public function store(\App\Http\Requests\FacturaRequest $request)
+{
+    // Buscar la venta relacionada y validación fiscal adicional
+    $venta = \App\Models\Venta::findOrFail($request->venta_id);
 
-        $venta = Venta::findOrFail($request->venta_id);
-
-        \Log::info('Debug venta', [
-            'tipo' => $venta->tipo,
-            'total' => $venta->total,
-        ]);
-
-        if (
-            strtoupper(trim($venta->tipo)) !== 'VENTA' ||
-            floatval($venta->total) <= 0
-        ) {
-            return back()->with('error', 'Solo se pueden facturar ventas tipo VENTA y con total mayor a cero.');
-        }
-
-        $factura = Factura::create([
-            'venta_id' => $venta->id,
-            'folio' => 'F' . str_pad(Factura::max('id') + 1, 6, '0', STR_PAD_LEFT),
-            'rfc' => $request->rfc,
-            'razon_social' => $request->razon_social,
-            'uso_cfdi' => $request->uso_cfdi,
-            'fecha' => now(),
-            'total' => $venta->total,
-        ]);
-
-        return redirect()->route('factura.index')
-            ->with('success', 'Factura generada correctamente.')
-            ->with('open_pdf', route('factura.ticketFactura', $factura->id))
-            ->with('facturada', $venta->id);
-
+    if (
+        strtoupper(trim($venta->tipo)) !== 'VENTA' ||
+        floatval($venta->total) <= 0
+    ) {
+        // Mensaje de error (tu vista ya lo muestra)
+        return back()
+            ->withInput()
+            ->with('error', 'Solo se pueden facturar ventas tipo VENTA y con total mayor a cero.');
     }
+
+    // Generar folio único automáticamente
+    $folio = 'F' . str_pad((\App\Models\Factura::max('id') + 1), 6, '0', STR_PAD_LEFT);
+
+    // Crear la factura sin pedir folio, fecha ni total en el formulario
+    $factura = \App\Models\Factura::create([
+        'venta_id'     => $venta->id,
+        'folio'        => $folio,
+        'rfc'          => $request->rfc,
+        'razon_social' => $request->razon_social,
+        'uso_cfdi'     => $request->uso_cfdi,
+        'fecha'        => now(),
+        'total'        => $venta->total,
+    ]);
+
+    return redirect()->route('factura.index')
+        ->with('success', 'Factura generada correctamente.')
+        ->with('open_pdf', route('factura.ticketFactura', $factura->id))
+        ->with('facturada', $venta->id);
+}
 
     public function show(Request $request)
     {

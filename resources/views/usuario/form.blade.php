@@ -147,12 +147,12 @@
 
   <div class="card-footer bg-light">
     <div class="d-flex justify-content-between">
-      <a href="{{ route('usuarios.index') }}" class="btn btn-danger">
-        <i class="fas fa-times-circle me-2"></i> Cancelar
+      <a id="cancel-user-button" href="{{ route('usuarios.index') }}" class="btn btn-danger">
+        <i class="fas fa-times-circle me-2"></i> Cancelar (F8)
       </a>
-      <button type="submit" class="btn btn-primary">
+      <button id="save-user-button" type="submit" class="btn btn-primary">
         <i class="fas fa-save me-2"></i>
-        {{ isset($usuario->id) ? 'Actualizar Usuario' : 'Guardar Usuario' }}
+        {{ isset($usuario->id) ? 'Actualizar Usuario (F9)' : 'Guardar Usuario (F9)' }}
       </button>
     </div>
   </div>
@@ -216,10 +216,39 @@
   #togglePassword {
     border-left: 0;
   }
+        .shortcut-hint {
+         opacity: 0.9;
+          font-size: 0.8em;
+          margin-left: 0.5em;
+          color: #bbb;
+        }
+
 </style>
 @endpush
 
 @push('js')
+<script>
+  document.addEventListener('keydown', function(e) {
+    // No interferir cuando el foco esté en inputs o textareas
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    switch (e.key) {
+      // F8 → Cancelar formulario
+      case 'F8':
+        e.preventDefault();
+        document.getElementById('cancel-user-button').click();
+        break;
+
+      // F9 → Guardar formulario
+      case 'F9':
+        e.preventDefault();
+        document.getElementById('save-user-button').click();
+        break;
+    }
+  });
+</script>
+
 <script>
   $(document).ready(function() {
     // Mostrar/ocultar contraseña
